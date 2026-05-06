@@ -9,7 +9,8 @@ export default function NuevoDocumentoPage() {
       <form action={createDocument} className="form-panel expanded">
         <input name="name" placeholder="Nombre del documento" required />
         <input name="type" placeholder="Tipo" required />
-        <button type="submit">Guardar documento</button>
+        <input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" name="file" type="file" required />
+        <button type="submit">Subir documento</button>
       </form>
     </AppShell>
   );

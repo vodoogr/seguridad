@@ -1,8 +1,26 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSql, hasDatabase } from "../lib/db";
+
+export async function login(formData: FormData) {
+  const accessCode = String(formData.get("access_code"));
+
+  if (!process.env.APP_ACCESS_CODE || accessCode !== process.env.APP_ACCESS_CODE) {
+    redirect("/login");
+  }
+
+  cookies().set("app_session", accessCode, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 60 * 60 * 8
+  });
+  redirect("/");
+}
 
 export async function createRisk(formData: FormData) {
   if (!hasDatabase) redirect("/riesgos");
@@ -67,12 +85,18 @@ export async function createCorrectiveAction(formData: FormData) {
 export async function createDocument(formData: FormData) {
   if (!hasDatabase) redirect("/documentacion");
   const sql = getSql();
+  const file = formData.get("file");
+  const uploadedFile = file instanceof File && file.size > 0 ? file : null;
+  const fileData = uploadedFile ? Buffer.from(await uploadedFile.arrayBuffer()) : null;
 
   await sql`
-    insert into documents (name, type, updated_at)
+    insert into documents (name, type, file_name, file_type, file_data, updated_at)
     values (
       ${String(formData.get("name"))},
       ${String(formData.get("type"))},
+      ${uploadedFile?.name ?? null},
+      ${uploadedFile?.type ?? null},
+      ${fileData},
       current_date
     )
   `;
@@ -144,4 +168,80 @@ export async function createAppUser(formData: FormData) {
   `;
   revalidatePath("/administrador");
   redirect("/administrador");
+}
+
+export async function createCommitteeMember(formData: FormData) {
+  if (!hasDatabase) redirect("/comite");
+  const sql = getSql();
+
+  await sql`
+    insert into committee_members (name, role, email, active)
+    values (
+      ${String(formData.get("name"))},
+      ${String(formData.get("role"))},
+      ${String(formData.get("email"))},
+      true
+    )
+  `;
+  revalidatePath("/comite");
+  redirect("/comite");
+}
+
+async function summarizeMinutes(minutes: string) {
+  if (!process.env.OPENAI_API_KEY || !minutes.trim()) return null;
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1-mini",
+      input: `Resume esta acta del comite de seguridad en decisiones, responsables y acciones pendientes:\n\n${minutes}`
+    })
+  });
+
+  if (!response.ok) return null;
+  const data = await response.json();
+  return data.output_text ?? null;
+}
+
+export async function createCommitteeMeeting(formData: FormData) {
+  if (!hasDatabase) redirect("/comite");
+  const sql = getSql();
+  const file = formData.get("file");
+  const uploadedFile = file instanceof File && file.size > 0 ? file : null;
+  const fileData = uploadedFile ? Buffer.from(await uploadedFile.arrayBuffer()) : null;
+  const minutes = String(formData.get("minutes"));
+  const summary = await summarizeMinutes(minutes);
+
+  const [meeting] = await sql`
+    insert into committee_meetings (meeting_date, status, minutes, ai_summary, file_name, file_type, file_data)
+    values (
+      ${String(formData.get("meeting_date"))},
+      ${String(formData.get("status"))},
+      ${minutes},
+      ${summary},
+      ${uploadedFile?.name ?? null},
+      ${uploadedFile?.type ?? null},
+      ${fileData}
+    )
+    returning id
+  `;
+
+  const agenda = String(formData.get("agenda"))
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  for (const [index, item] of agenda.entries()) {
+    await sql`
+      insert into committee_agenda (meeting_id, item, position)
+      values (${meeting.id}, ${item}, ${index + 1})
+    `;
+  }
+
+  revalidatePath("/comite");
+  redirect("/comite");
 }

@@ -13,7 +13,8 @@ export default async function DocumentacionPage() {
       <form action={createDocument} className="form-panel short">
         <input name="name" placeholder="Nombre del documento" required />
         <input name="type" placeholder="Tipo" required />
-        <button type="submit">Guardar documento</button>
+        <input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" name="file" type="file" required />
+        <button type="submit">Subir documento</button>
       </form>
       <section className="cards-list">
         {documents.map((doc) => {
@@ -23,7 +24,7 @@ export default async function DocumentacionPage() {
                 <FileText size={22} />
                 <div>
                   <h2>{doc.name}</h2>
-                  <p>{doc.type}</p>
+                  <p>{doc.type}{doc.fileName ? ` · ${doc.fileName}` : ""}</p>
                 </div>
               </div>
               <div className="item-meta">

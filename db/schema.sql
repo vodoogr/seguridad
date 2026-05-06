@@ -33,6 +33,7 @@ create table if not exists committee_members (
   id bigserial primary key,
   name text not null,
   role text,
+  email text,
   active boolean not null default true
 );
 
@@ -40,7 +41,11 @@ create table if not exists committee_meetings (
   id bigserial primary key,
   meeting_date date not null,
   status text not null default 'Programada',
-  minutes text
+  minutes text,
+  ai_summary text,
+  file_name text,
+  file_type text,
+  file_data bytea
 );
 
 create table if not exists committee_agenda (
@@ -54,6 +59,9 @@ create table if not exists documents (
   id bigserial primary key,
   name text not null,
   type text not null,
+  file_name text,
+  file_type text,
+  file_data bytea,
   updated_at date not null default current_date
 );
 
@@ -77,6 +85,15 @@ create table if not exists app_users (
   status text not null default 'Activo',
   created_at timestamptz not null default now()
 );
+
+alter table documents add column if not exists file_name text;
+alter table documents add column if not exists file_type text;
+alter table documents add column if not exists file_data bytea;
+alter table committee_members add column if not exists email text;
+alter table committee_meetings add column if not exists ai_summary text;
+alter table committee_meetings add column if not exists file_name text;
+alter table committee_meetings add column if not exists file_type text;
+alter table committee_meetings add column if not exists file_data bytea;
 
 insert into risks (id, area, risk, level, owner, due_date, status)
 values

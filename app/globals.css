@@ -169,7 +169,7 @@ textarea {
 }
 
 .form-panel.short {
-  grid-template-columns: 1fr 220px auto;
+  grid-template-columns: 1fr 220px 280px auto;
 }
 
 .form-panel button {
@@ -388,6 +388,82 @@ li svg {
 
 .muted-text {
   color: var(--muted);
+}
+
+.stack-form {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.calendar-input {
+  margin-bottom: 18px;
+  max-width: 220px;
+}
+
+.meetings-panel {
+  margin-top: 20px;
+}
+
+.item-card.compact {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.summary-box {
+  background: #f7faf8;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  max-width: 520px;
+  padding: 12px;
+}
+
+.summary-box p {
+  margin-top: 6px;
+}
+
+.login-page {
+  align-items: center;
+  background: #17211c;
+  display: flex;
+  min-height: 100vh;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-panel {
+  background: white;
+  border-radius: 8px;
+  max-width: 420px;
+  padding: 28px;
+  width: 100%;
+}
+
+.login-brand {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.login-brand svg {
+  color: var(--green);
+}
+
+.login-brand strong,
+.login-brand span,
+.login-form label {
+  display: block;
+}
+
+.login-brand span,
+.login-form label {
+  color: var(--muted);
+}
+
+.login-form {
+  display: grid;
+  gap: 12px;
 }
 
 .admin-status {

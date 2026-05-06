@@ -30,9 +30,21 @@ type ActionRecord = {
 };
 
 type DocumentRecord = {
+  id?: number;
   name: string;
   type: string;
+  fileName?: string;
+  fileType?: string;
   updated: string;
+};
+
+type MeetingRecord = {
+  id: number;
+  date: string;
+  status: string;
+  minutes?: string;
+  aiSummary?: string;
+  fileName?: string;
 };
 
 type IncidentRecord = {
@@ -130,27 +142,51 @@ export async function getActions() {
 }
 
 export async function getCommittee() {
-  if (!hasDatabase) return committee;
+  if (!hasDatabase) {
+    return {
+      ...committee,
+      lastMinutesDate: "Sin acta"
+    };
+  }
   const sql = getSql();
   const [meeting] = await sql`
-    select to_char(meeting_date, 'DD TMMonth YYYY') as "nextDate"
+    select to_char(meeting_date, 'DD TMMonth YYYY') as "nextDate", to_char(meeting_date, 'DD/MM/YYYY') as "lastMinutesDate"
     from committee_meetings
-    order by meeting_date asc
+    order by meeting_date desc
     limit 1
   `;
-  const members = await sql`select name from committee_members order by name asc`;
+  const members = await sql`select name from committee_members where active = true order by name asc`;
   const agenda = await sql`
     select item
     from committee_agenda
-    where meeting_id = (select id from committee_meetings order by meeting_date asc limit 1)
+    where meeting_id = (select id from committee_meetings order by meeting_date desc limit 1)
     order by position asc
   `;
 
   return {
     nextDate: meeting?.nextDate ?? committee.nextDate,
+    lastMinutesDate: meeting?.lastMinutesDate ?? "Sin acta",
     members: members.map((member) => member.name),
     agenda: agenda.map((row) => row.item)
   };
+}
+
+export async function getCommitteeMeetings() {
+  if (!hasDatabase) return [];
+  const sql = getSql();
+
+  const rows = await sql`
+    select
+      id,
+      to_char(meeting_date, 'DD/MM/YYYY') as date,
+      status,
+      minutes,
+      ai_summary as "aiSummary",
+      file_name as "fileName"
+    from committee_meetings
+    order by meeting_date desc
+  `;
+  return rows as MeetingRecord[];
 }
 
 export async function getDocuments() {
@@ -158,7 +194,7 @@ export async function getDocuments() {
   const sql = getSql();
 
   const rows = await sql`
-    select name, type, to_char(updated_at, 'DD/MM/YYYY') as updated
+    select id, name, type, file_name as "fileName", file_type as "fileType", to_char(updated_at, 'DD/MM/YYYY') as updated
     from documents
     order by updated_at desc
   `;

@@ -1,14 +1,23 @@
 import { AppShell } from "../../components/AppShell";
 import { PageHeader } from "../../components/PageHeader";
+import { createCommitteeMeeting } from "../../actions";
 
 export default function NuevaReunionPage() {
   return (
     <AppShell>
       <PageHeader eyebrow="Nueva reunion" title="Preparar reunion del comite" action="Ver comite" actionHref="/comite" />
-      <article className="panel">
-        <h2>Modulo pendiente de actas</h2>
-        <p className="muted-text">Siguiente paso: guardar reuniones, asistentes, orden del dia y actas en Neon.</p>
-      </article>
+      <form action={createCommitteeMeeting} className="form-panel expanded">
+        <input name="meeting_date" type="date" required />
+        <select name="status" defaultValue="Programada">
+          <option>Programada</option>
+          <option>Celebrada</option>
+          <option>Cancelada</option>
+        </select>
+        <input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" name="file" type="file" />
+        <textarea name="agenda" placeholder="Orden del dia, un punto por linea" required />
+        <textarea name="minutes" placeholder="Contenido del acta para resumir con IA" />
+        <button type="submit">Guardar reunion</button>
+      </form>
     </AppShell>
   );
 }
