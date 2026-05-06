@@ -8,7 +8,7 @@ export default async function ComitePage() {
 
   return (
     <AppShell>
-      <PageHeader eyebrow="Comite PRL" title="Gestion del comite de seguridad y salud" action="Nueva reunion" />
+      <PageHeader eyebrow="Comite PRL" title="Gestion del comite de seguridad y salud" action="Nueva reunion" actionHref="/comite/nueva-reunion" />
       <section className="grid">
         <article className="panel">
           <div className="panel-title">

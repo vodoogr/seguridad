@@ -1,13 +1,16 @@
 import { FileWarning } from "lucide-react";
+import Link from "next/link";
 
 export function PageHeader({
   eyebrow,
   title,
-  action = "Registrar incidencia"
+  action = "Registrar incidencia",
+  actionHref = "/incidencias/nueva"
 }: {
   eyebrow: string;
   title: string;
   action?: string;
+  actionHref?: string;
 }) {
   return (
     <header className="topbar">
@@ -15,10 +18,10 @@ export function PageHeader({
         <p>{eyebrow}</p>
         <h1>{title}</h1>
       </div>
-      <button>
+      <Link className="button-link" href={actionHref}>
         <FileWarning size={18} />
         {action}
-      </button>
+      </Link>
     </header>
   );
 }

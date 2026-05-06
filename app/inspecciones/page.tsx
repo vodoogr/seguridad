@@ -10,7 +10,7 @@ export default async function InspeccionesPage() {
 
   return (
     <AppShell>
-      <PageHeader eyebrow="Inspecciones" title="Planificacion y resultados de inspecciones" action="Nueva inspeccion" />
+      <PageHeader eyebrow="Inspecciones" title="Planificacion y resultados de inspecciones" action="Nueva inspeccion" actionHref="/inspecciones/nueva" />
       <form action={createInspection} className="form-panel">
         <input name="id" placeholder="Codigo" required />
         <input name="area" placeholder="Area" required />

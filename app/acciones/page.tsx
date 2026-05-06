@@ -9,7 +9,7 @@ export default async function AccionesPage() {
 
   return (
     <AppShell>
-      <PageHeader eyebrow="Acciones correctoras" title="Seguimiento de medidas preventivas" action="Nueva accion" />
+      <PageHeader eyebrow="Acciones correctoras" title="Seguimiento de medidas preventivas" action="Nueva accion" actionHref="/acciones/nueva" />
       <form action={createCorrectiveAction} className="form-panel">
         <input name="id" placeholder="Codigo" required />
         <input name="task" placeholder="Medida correctora" required />

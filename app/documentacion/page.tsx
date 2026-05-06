@@ -9,7 +9,7 @@ export default async function DocumentacionPage() {
 
   return (
     <AppShell>
-      <PageHeader eyebrow="Documentacion" title="Control documental de prevencion" action="Subir documento" />
+      <PageHeader eyebrow="Documentacion" title="Control documental de prevencion" action="Subir documento" actionHref="/documentacion/nuevo" />
       <form action={createDocument} className="form-panel short">
         <input name="name" placeholder="Nombre del documento" required />
         <input name="type" placeholder="Tipo" required />

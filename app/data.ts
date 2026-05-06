@@ -9,11 +9,13 @@ import {
 
 export const navItems = [
   { label: "Panel", href: "/" },
+  { label: "Incidencias", href: "/incidencias" },
   { label: "Riesgos", href: "/riesgos" },
   { label: "Inspecciones", href: "/inspecciones" },
   { label: "Acciones", href: "/acciones" },
   { label: "Comite", href: "/comite" },
-  { label: "Documentacion", href: "/documentacion" }
+  { label: "Documentacion", href: "/documentacion" },
+  { label: "Administrador", href: "/administrador" }
 ];
 
 export const metrics = [
@@ -134,4 +136,26 @@ export const calendarItems = [
   { title: "Inspeccion muelles", date: "08/05/2026", icon: CalendarDays },
   { title: "Reunion comite PRL", date: "15/05/2026", icon: CalendarDays },
   { title: "Simulacro evacuacion", date: "28/05/2026", icon: CalendarDays }
+];
+
+export const incidents = [
+  {
+    id: "INC-001",
+    title: "Golpe leve en zona de picking",
+    area: "Picking",
+    severity: "Media",
+    owner: "Jefe de turno",
+    date: "03/05/2026",
+    status: "Abierta"
+  }
+];
+
+export const appUsers = [
+  {
+    id: "USR-001",
+    name: "Administrador PRL",
+    email: "admin@empresa.com",
+    role: "Administrador",
+    status: "Activo"
+  }
 ];

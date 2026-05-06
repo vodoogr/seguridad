@@ -57,6 +57,27 @@ create table if not exists documents (
   updated_at date not null default current_date
 );
 
+create table if not exists incidents (
+  id text primary key,
+  title text not null,
+  area text not null,
+  severity text not null check (severity in ('Baja', 'Media', 'Alta', 'Critica')),
+  owner text not null,
+  incident_date date not null,
+  status text not null default 'Abierta',
+  description text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists app_users (
+  id text primary key,
+  name text not null,
+  email text not null unique,
+  role text not null check (role in ('Administrador', 'Usuario')),
+  status text not null default 'Activo',
+  created_at timestamptz not null default now()
+);
+
 insert into risks (id, area, risk, level, owner, due_date, status)
 values
   ('R-001', 'Muelles de carga', 'Atropello por carretillas', 'Critico', 'Jefe de turno', '2026-05-10', 'Abierto'),
@@ -79,18 +100,25 @@ values
 on conflict (id) do nothing;
 
 insert into committee_members (name, role)
-values
-  ('Responsable PRL', 'Presidencia'),
-  ('Jefe de almacen', 'Operaciones'),
-  ('Delegado de prevencion', 'Representacion trabajadores'),
-  ('Mantenimiento', 'Soporte tecnico'),
-  ('RRHH', 'Formacion'),
-  ('Representante operaciones', 'Operaciones')
-on conflict do nothing;
+select *
+from (
+  values
+    ('Responsable PRL', 'Presidencia'),
+    ('Jefe de almacen', 'Operaciones'),
+    ('Delegado de prevencion', 'Representacion trabajadores'),
+    ('Mantenimiento', 'Soporte tecnico'),
+    ('RRHH', 'Formacion'),
+    ('Representante operaciones', 'Operaciones')
+) as seed(name, role)
+where not exists (
+  select 1 from committee_members existing where existing.name = seed.name
+);
 
 insert into committee_meetings (meeting_date, status)
-values ('2026-05-15', 'Programada')
-on conflict do nothing;
+select '2026-05-15', 'Programada'
+where not exists (
+  select 1 from committee_meetings where meeting_date = '2026-05-15'
+);
 
 insert into committee_agenda (meeting_id, item, position)
 select m.id, agenda.item, agenda.position
@@ -101,10 +129,32 @@ cross join (
     ('Seguimiento de medidas correctoras', 2),
     ('Planificacion de simulacro de evacuacion', 3)
 ) as agenda(item, position)
-where m.meeting_date = '2026-05-15';
+where m.meeting_date = '2026-05-15'
+  and not exists (
+    select 1
+    from committee_agenda existing
+    where existing.meeting_id = m.id
+      and existing.item = agenda.item
+  );
 
 insert into documents (name, type, updated_at)
+select *
+from (
+  values
+    ('Evaluacion de riesgos del almacen', 'Evaluacion', '2026-05-02'::date),
+    ('Plan de emergencia y evacuacion', 'Plan', '2026-04-18'::date),
+    ('Procedimiento de carretillas', 'Procedimiento', '2026-04-10'::date)
+) as seed(name, type, updated_at)
+where not exists (
+  select 1 from documents existing where existing.name = seed.name
+);
+
+insert into incidents (id, title, area, severity, owner, incident_date, status, description)
 values
-  ('Evaluacion de riesgos del almacen', 'Evaluacion', '2026-05-02'),
-  ('Plan de emergencia y evacuacion', 'Plan', '2026-04-18'),
-  ('Procedimiento de carretillas', 'Procedimiento', '2026-04-10');
+  ('INC-001', 'Golpe leve en zona de picking', 'Picking', 'Media', 'Jefe de turno', '2026-05-03', 'Abierta', 'Incidente sin baja registrado durante preparacion de pedido')
+on conflict (id) do nothing;
+
+insert into app_users (id, name, email, role, status)
+values
+  ('USR-001', 'Administrador PRL', 'admin@empresa.com', 'Administrador', 'Activo')
+on conflict (id) do nothing;

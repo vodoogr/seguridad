@@ -10,7 +10,7 @@ export default async function RiesgosPage() {
 
   return (
     <AppShell>
-      <PageHeader eyebrow="Riesgos" title="Registro y evaluacion de riesgos" action="Nuevo riesgo" />
+      <PageHeader eyebrow="Riesgos" title="Registro y evaluacion de riesgos" action="Nuevo riesgo" actionHref="/riesgos/nuevo" />
       <form action={createRisk} className="form-panel">
         <input name="id" placeholder="Codigo" required />
         <input name="area" placeholder="Area" required />

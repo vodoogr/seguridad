@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getSql, hasDatabase } from "../lib/db";
 
 export async function createRisk(formData: FormData) {
-  if (!hasDatabase) return;
+  if (!hasDatabase) redirect("/riesgos");
   const sql = getSql();
 
   await sql`
@@ -21,10 +22,11 @@ export async function createRisk(formData: FormData) {
   `;
   revalidatePath("/riesgos");
   revalidatePath("/");
+  redirect("/riesgos");
 }
 
 export async function createInspection(formData: FormData) {
-  if (!hasDatabase) return;
+  if (!hasDatabase) redirect("/inspecciones");
   const sql = getSql();
 
   await sql`
@@ -39,10 +41,11 @@ export async function createInspection(formData: FormData) {
     )
   `;
   revalidatePath("/inspecciones");
+  redirect("/inspecciones");
 }
 
 export async function createCorrectiveAction(formData: FormData) {
-  if (!hasDatabase) return;
+  if (!hasDatabase) redirect("/acciones");
   const sql = getSql();
 
   await sql`
@@ -58,10 +61,11 @@ export async function createCorrectiveAction(formData: FormData) {
   `;
   revalidatePath("/acciones");
   revalidatePath("/");
+  redirect("/acciones");
 }
 
 export async function createDocument(formData: FormData) {
-  if (!hasDatabase) return;
+  if (!hasDatabase) redirect("/documentacion");
   const sql = getSql();
 
   await sql`
@@ -73,6 +77,7 @@ export async function createDocument(formData: FormData) {
     )
   `;
   revalidatePath("/documentacion");
+  redirect("/documentacion");
 }
 
 export async function closeCorrectiveAction(formData: FormData) {
@@ -99,4 +104,44 @@ export async function controlRisk(formData: FormData) {
   `;
   revalidatePath("/riesgos");
   revalidatePath("/");
+}
+
+export async function createIncident(formData: FormData) {
+  if (!hasDatabase) redirect("/incidencias");
+  const sql = getSql();
+
+  await sql`
+    insert into incidents (id, title, area, severity, owner, incident_date, status, description)
+    values (
+      ${String(formData.get("id"))},
+      ${String(formData.get("title"))},
+      ${String(formData.get("area"))},
+      ${String(formData.get("severity"))},
+      ${String(formData.get("owner"))},
+      ${String(formData.get("incident_date"))},
+      ${String(formData.get("status"))},
+      ${String(formData.get("description"))}
+    )
+  `;
+  revalidatePath("/incidencias");
+  revalidatePath("/");
+  redirect("/incidencias");
+}
+
+export async function createAppUser(formData: FormData) {
+  if (!hasDatabase) redirect("/administrador");
+  const sql = getSql();
+
+  await sql`
+    insert into app_users (id, name, email, role, status)
+    values (
+      ${String(formData.get("id"))},
+      ${String(formData.get("name"))},
+      ${String(formData.get("email"))},
+      ${String(formData.get("role"))},
+      'Activo'
+    )
+  `;
+  revalidatePath("/administrador");
+  redirect("/administrador");
 }
