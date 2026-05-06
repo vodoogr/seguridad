@@ -157,12 +157,20 @@ export const incidents = [
   }
 ];
 
-export const appUsers = [
+export const appUsers: Array<{
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  authStatus?: string;
+}> = [
   {
     id: "USR-001",
     name: "Administrador PRL",
     email: "admin@empresa.com",
     role: "Administrador",
-    status: "Activo"
+    status: "Activo",
+    authStatus: "Activo"
   }
 ];
