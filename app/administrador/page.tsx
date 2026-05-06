@@ -3,13 +3,35 @@ import { PageHeader } from "../components/PageHeader";
 import { StatusBadge } from "../components/Tables";
 import { createAppUser } from "../actions";
 import { getAppUsers } from "../../lib/repository";
+import { getDatabaseInfo } from "../../lib/db";
+import { Database, Power } from "lucide-react";
 
 export default async function AdministradorPage() {
   const users = await getAppUsers();
+  const database = getDatabaseInfo();
 
   return (
     <AppShell>
       <PageHeader eyebrow="Administrador" title="Usuarios y permisos" action="Crear usuario" actionHref="/administrador" />
+      <section className="admin-status">
+        <article className="panel status-card">
+          <div className={database.connected ? "status-icon on" : "status-icon off"}>
+            <Power size={22} />
+          </div>
+          <div>
+            <span>Base de datos</span>
+            <strong>{database.connected ? "ON" : "OFF"}</strong>
+          </div>
+        </article>
+        <article className="panel status-card wide">
+          <Database size={24} />
+          <div>
+            <span>Destino Neon</span>
+            <strong>{database.host}</strong>
+            <small>{database.database}</small>
+          </div>
+        </article>
+      </section>
       <form action={createAppUser} className="form-panel">
         <input name="id" placeholder="Codigo: USR-002" required />
         <input name="name" placeholder="Nombre" required />
