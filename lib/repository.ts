@@ -43,7 +43,6 @@ type MeetingRecord = {
   date: string;
   status: string;
   minutes?: string;
-  aiSummary?: string;
   fileName?: string;
 };
 
@@ -181,7 +180,6 @@ export async function getCommitteeMeetings() {
       to_char(meeting_date, 'DD/MM/YYYY') as date,
       status,
       minutes,
-      ai_summary as "aiSummary",
       file_name as "fileName"
     from committee_meetings
     order by meeting_date desc

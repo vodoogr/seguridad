@@ -187,26 +187,6 @@ export async function createCommitteeMember(formData: FormData) {
   redirect("/comite");
 }
 
-async function summarizeMinutes(minutes: string) {
-  if (!process.env.OPENAI_API_KEY || !minutes.trim()) return null;
-
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      input: `Resume esta acta del comite de seguridad en decisiones, responsables y acciones pendientes:\n\n${minutes}`
-    })
-  });
-
-  if (!response.ok) return null;
-  const data = await response.json();
-  return data.output_text ?? null;
-}
-
 export async function createCommitteeMeeting(formData: FormData) {
   if (!hasDatabase) redirect("/comite");
   const sql = getSql();
@@ -214,15 +194,13 @@ export async function createCommitteeMeeting(formData: FormData) {
   const uploadedFile = file instanceof File && file.size > 0 ? file : null;
   const fileData = uploadedFile ? Buffer.from(await uploadedFile.arrayBuffer()) : null;
   const minutes = String(formData.get("minutes"));
-  const summary = await summarizeMinutes(minutes);
 
   const [meeting] = await sql`
-    insert into committee_meetings (meeting_date, status, minutes, ai_summary, file_name, file_type, file_data)
+    insert into committee_meetings (meeting_date, status, minutes, file_name, file_type, file_data)
     values (
       ${String(formData.get("meeting_date"))},
       ${String(formData.get("status"))},
       ${minutes},
-      ${summary},
       ${uploadedFile?.name ?? null},
       ${uploadedFile?.type ?? null},
       ${fileData}

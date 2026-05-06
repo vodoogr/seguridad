@@ -15,7 +15,7 @@ export default function NuevaReunionPage() {
         </select>
         <input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" name="file" type="file" />
         <textarea name="agenda" placeholder="Orden del dia, un punto por linea" required />
-        <textarea name="minutes" placeholder="Contenido del acta para resumir con IA" />
+        <textarea name="minutes" placeholder="Contenido del acta" />
         <button type="submit">Guardar reunion</button>
       </form>
     </AppShell>

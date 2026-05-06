@@ -62,8 +62,8 @@ export default async function ComitePage() {
                 <p>{meeting.status}{meeting.fileName ? ` · ${meeting.fileName}` : ""}</p>
               </div>
               <div className="summary-box">
-                <strong>Resumen IA</strong>
-                <p>{meeting.aiSummary || "Sin resumen IA"}</p>
+                <strong>Acta</strong>
+                <p>{meeting.minutes || "Sin texto de acta"}</p>
               </div>
             </article>
           ))}

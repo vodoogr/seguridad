@@ -42,7 +42,6 @@ create table if not exists committee_meetings (
   meeting_date date not null,
   status text not null default 'Programada',
   minutes text,
-  ai_summary text,
   file_name text,
   file_type text,
   file_data bytea
@@ -90,7 +89,6 @@ alter table documents add column if not exists file_name text;
 alter table documents add column if not exists file_type text;
 alter table documents add column if not exists file_data bytea;
 alter table committee_members add column if not exists email text;
-alter table committee_meetings add column if not exists ai_summary text;
 alter table committee_meetings add column if not exists file_name text;
 alter table committee_meetings add column if not exists file_type text;
 alter table committee_meetings add column if not exists file_data bytea;
