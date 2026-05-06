@@ -126,7 +126,14 @@ export const committee = {
   ]
 };
 
-export const documents = [
+export const documents: Array<{
+  name: string;
+  type: string;
+  updated: string;
+  icon: typeof FileText;
+  fileName?: string;
+  fileType?: string;
+}> = [
   { name: "Evaluacion de riesgos del almacen", type: "Evaluacion", updated: "02/05/2026", icon: FileText },
   { name: "Plan de emergencia y evacuacion", type: "Plan", updated: "18/04/2026", icon: FileText },
   { name: "Procedimiento de carretillas", type: "Procedimiento", updated: "10/04/2026", icon: FileText }
