@@ -228,7 +228,8 @@ export async function createCommitteeMeeting(formData: FormData) {
     .map((item) => item.trim())
     .filter(Boolean);
 
-  for (const [index, item] of agenda.entries()) {
+  for (let index = 0; index < agenda.length; index += 1) {
+    const item = agenda[index];
     await sql`
       insert into committee_agenda (meeting_id, item, position)
       values (${meeting.id}, ${item}, ${index + 1})
