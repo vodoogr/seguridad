@@ -1,9 +1,11 @@
 import { CheckCircle2, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
-import { committee } from "../data";
+import { getCommittee } from "../../lib/repository";
 
-export default function ComitePage() {
+export default async function ComitePage() {
+  const committee = await getCommittee();
+
   return (
     <AppShell>
       <PageHeader eyebrow="Comite PRL" title="Gestion del comite de seguridad y salud" action="Nueva reunion" />

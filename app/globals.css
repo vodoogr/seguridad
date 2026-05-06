@@ -114,6 +114,37 @@ button {
   padding: 0 16px;
 }
 
+input,
+select {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  min-height: 44px;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.form-panel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 20px;
+  padding: 16px;
+}
+
+.form-panel.short {
+  grid-template-columns: 1fr 220px auto;
+}
+
+.form-panel button {
+  justify-content: center;
+}
+
 .metrics {
   display: grid;
   gap: 16px;
@@ -322,7 +353,9 @@ li svg {
   }
 
   .metrics,
-  .grid {
+  .grid,
+  .form-panel,
+  .form-panel.short {
     grid-template-columns: 1fr;
   }
 

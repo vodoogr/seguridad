@@ -2,9 +2,12 @@ import { CheckCircle2 } from "lucide-react";
 import { AppShell } from "./components/AppShell";
 import { PageHeader } from "./components/PageHeader";
 import { RiskLevel } from "./components/Tables";
-import { committee, metrics, risks } from "./data";
+import { metrics } from "./data";
+import { getCommittee, getRisks } from "../lib/repository";
 
-export default function Home() {
+export default async function Home() {
+  const [committee, risks] = await Promise.all([getCommittee(), getRisks()]);
+
   return (
     <AppShell>
       <PageHeader eyebrow="Panel operativo" title="Control de riesgos laborales del almacen" />
