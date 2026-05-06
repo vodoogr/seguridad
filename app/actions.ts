@@ -186,6 +186,13 @@ export async function updateAccessCode(formData: FormData) {
 
   const sql = getSql();
   await sql`
+    create table if not exists app_settings (
+      key text primary key,
+      value text not null,
+      updated_at timestamptz not null default now()
+    )
+  `;
+  await sql`
     insert into app_settings (key, value)
     values ('APP_ACCESS_CODE', ${newCode})
     on conflict (key) do update set value = excluded.value, updated_at = now()
