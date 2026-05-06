@@ -431,6 +431,32 @@ li svg {
   padding: 20px;
 }
 
+.landing-login {
+  display: grid;
+  gap: 34px;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.landing-copy {
+  align-self: center;
+  color: white;
+}
+
+.landing-copy h1 {
+  font-size: 44px;
+  margin: 28px 0 16px;
+  max-width: 720px;
+}
+
+.landing-copy p {
+  color: #d9e3de;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 680px;
+}
+
 .login-panel {
   background: white;
   border-radius: 8px;
@@ -464,6 +490,12 @@ li svg {
 .login-form {
   display: grid;
   gap: 12px;
+}
+
+.login-separator {
+  color: var(--muted);
+  margin: 18px 0;
+  text-align: center;
 }
 
 .admin-status {
@@ -586,6 +618,14 @@ dd {
 
   dl div {
     grid-template-columns: 1fr;
+  }
+
+  .landing-login {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-copy h1 {
+    font-size: 32px;
   }
 }
 

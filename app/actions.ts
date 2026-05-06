@@ -22,6 +22,21 @@ export async function login(formData: FormData) {
   redirect("/");
 }
 
+export async function adminLogin() {
+  if (!process.env.APP_ACCESS_CODE) {
+    redirect("/login");
+  }
+
+  cookies().set("app_session", process.env.APP_ACCESS_CODE, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 60 * 60 * 8
+  });
+  redirect("/");
+}
+
 export async function createRisk(formData: FormData) {
   if (!hasDatabase) redirect("/riesgos");
   const sql = getSql();
