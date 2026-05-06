@@ -30,6 +30,8 @@ body {
 .sidebar {
   background: #17211c;
   color: white;
+  display: flex;
+  flex-direction: column;
   padding: 28px 20px;
 }
 
@@ -53,6 +55,17 @@ body {
 nav {
   display: grid;
   gap: 8px;
+}
+
+.logout-form {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.logout-form button {
+  background: #33443b;
+  justify-content: center;
+  width: 100%;
 }
 
 nav a {
@@ -266,8 +279,8 @@ textarea {
 }
 
 .row.users-head {
-  grid-template-columns: 0.8fr 1.2fr 1.8fr 1fr 0.8fr;
-  min-width: 820px;
+  grid-template-columns: 0.8fr 1.2fr 1.8fr 1fr 0.8fr 1.1fr;
+  min-width: 980px;
 }
 
 .row.head {

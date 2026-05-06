@@ -4,6 +4,7 @@ import { HardHat } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { logout } from "../actions";
 import { navItems } from "../data";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -26,6 +27,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           ))}
         </nav>
+        <form action={logout} className="logout-form">
+          <button type="submit">Cerrar sesion</button>
+        </form>
       </aside>
       <section className="workspace">{children}</section>
     </main>

@@ -36,6 +36,7 @@ export default async function AdministradorPage() {
         <input name="id" placeholder="Codigo: USR-002" required />
         <input name="name" placeholder="Nombre" required />
         <input name="email" type="email" placeholder="email@empresa.com" required />
+        <input name="access_code" type="password" placeholder="Clave temporal" required minLength={8} />
         <select name="role" defaultValue="Usuario">
           <option>Usuario</option>
           <option>Administrador</option>
@@ -68,6 +69,7 @@ export default async function AdministradorPage() {
             <span>Email</span>
             <span>Rol</span>
             <span>Estado</span>
+            <span>Auth</span>
           </div>
           {users.map((user) => (
             <div className="row users-head" key={user.id}>
@@ -76,6 +78,7 @@ export default async function AdministradorPage() {
               <span>{user.email}</span>
               <span>{user.role}</span>
               <StatusBadge status={user.status} />
+              <StatusBadge status={user.authStatus ?? "Pendiente"} />
             </div>
           ))}
         </div>

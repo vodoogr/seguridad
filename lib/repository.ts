@@ -62,6 +62,7 @@ type AppUserRecord = {
   email: string;
   role: string;
   status: string;
+  authStatus?: string;
 };
 
 export async function getDashboardStats() {
@@ -221,7 +222,7 @@ export async function getAppUsers() {
 
   if (!authTable?.auth_table) {
     const rows = await sql`
-      select id, name, email, role, status
+      select id, name, email, role, status, auth_status as "authStatus"
       from app_users
       order by created_at desc
     `;
@@ -234,7 +235,8 @@ export async function getAppUsers() {
       coalesce(nu.name, au.name) as name,
       au.email,
       au.role,
-      au.status
+      au.status,
+      case when nu.email is null then au.auth_status else 'Activo Neon Auth' end as "authStatus"
     from app_users au
     left join neon_auth.users_sync nu on lower(nu.email) = lower(au.email)
     order by au.created_at desc

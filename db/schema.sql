@@ -80,8 +80,10 @@ create table if not exists app_users (
   id text primary key,
   name text not null,
   email text not null unique,
+  access_code text,
   role text not null check (role in ('Administrador', 'Usuario')),
   status text not null default 'Activo',
+  auth_status text not null default 'Invitacion pendiente',
   created_at timestamptz not null default now()
 );
 
@@ -98,6 +100,8 @@ alter table committee_members add column if not exists email text;
 alter table committee_meetings add column if not exists file_name text;
 alter table committee_meetings add column if not exists file_type text;
 alter table committee_meetings add column if not exists file_data bytea;
+alter table app_users add column if not exists access_code text;
+alter table app_users add column if not exists auth_status text not null default 'Invitacion pendiente';
 
 insert into risks (id, area, risk, level, owner, due_date, status)
 values
@@ -175,9 +179,9 @@ values
   ('INC-001', 'Golpe leve en zona de picking', 'Picking', 'Media', 'Jefe de turno', '2026-05-03', 'Abierta', 'Incidente sin baja registrado durante preparacion de pedido')
 on conflict (id) do nothing;
 
-insert into app_users (id, name, email, role, status)
+insert into app_users (id, name, email, access_code, role, status, auth_status)
 values
-  ('USR-001', 'Administrador PRL', 'admin@empresa.com', 'Administrador', 'Activo')
+  ('USR-001', 'Administrador PRL', 'admin@empresa.com', 'Seguridad2026!', 'Administrador', 'Activo', 'Activo')
 on conflict (id) do nothing;
 
 insert into app_settings (key, value)
