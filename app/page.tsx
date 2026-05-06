@@ -3,10 +3,10 @@ import { AppShell } from "./components/AppShell";
 import { PageHeader } from "./components/PageHeader";
 import { RiskLevel } from "./components/Tables";
 import { metrics } from "./data";
-import { getCommittee, getRisks } from "../lib/repository";
+import { getCommittee, getDashboardStats, getRisks } from "../lib/repository";
 
 export default async function Home() {
-  const [committee, risks] = await Promise.all([getCommittee(), getRisks()]);
+  const [committee, risks, stats] = await Promise.all([getCommittee(), getRisks(), getDashboardStats()]);
 
   return (
     <AppShell>
@@ -15,12 +15,13 @@ export default async function Home() {
       <section className="metrics">
         {metrics.map((item) => {
           const Icon = item.icon;
+          const stat = stats.find((entry) => entry.label === item.label);
           return (
             <article className="metric" key={item.label}>
               <Icon size={22} />
               <span>{item.label}</span>
-              <strong>{item.value}</strong>
-              <small>{item.detail}</small>
+              <strong>{stat?.value ?? item.value}</strong>
+              <small>{stat?.detail ?? item.detail}</small>
             </article>
           );
         })}

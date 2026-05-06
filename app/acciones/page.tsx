@@ -1,7 +1,7 @@
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
 import { StatusBadge } from "../components/Tables";
-import { createCorrectiveAction } from "../actions";
+import { closeCorrectiveAction, createCorrectiveAction } from "../actions";
 import { getActions } from "../../lib/repository";
 
 export default async function AccionesPage() {
@@ -45,7 +45,11 @@ export default async function AccionesPage() {
               <span>{action.risk}</span>
               <span>{action.owner}</span>
               <span>{action.due}</span>
-              <StatusBadge status={action.status} />
+              <form action={closeCorrectiveAction} className="inline-form">
+                <input name="id" type="hidden" value={action.id} />
+                <StatusBadge status={action.status} />
+                <button type="submit">Cerrar</button>
+              </form>
             </div>
           ))}
         </div>

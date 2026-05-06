@@ -35,6 +35,36 @@ type DocumentRecord = {
   updated: string;
 };
 
+export async function getDashboardStats() {
+  const riskRows = await getRisks();
+  const actionRows = await getActions();
+  const inspectionRows = await getInspections();
+  const committeeData = await getCommittee();
+
+  return [
+    {
+      label: "Riesgos abiertos",
+      value: String(riskRows.filter((risk) => risk.status !== "Controlado").length),
+      detail: `${riskRows.filter((risk) => risk.level === "Critico").length} criticos`
+    },
+    {
+      label: "Acciones pendientes",
+      value: String(actionRows.filter((action) => action.status !== "Cerrada").length),
+      detail: `${actionRows.filter((action) => action.status === "Pendiente").length} pendientes`
+    },
+    {
+      label: "Inspecciones",
+      value: String(inspectionRows.length),
+      detail: `${inspectionRows.filter((inspection) => inspection.result === "Programada").length} programadas`
+    },
+    {
+      label: "Comite PRL",
+      value: String(committeeData.members.length),
+      detail: "miembros activos"
+    }
+  ];
+}
+
 export async function getRisks() {
   if (!hasDatabase) return risks;
   const sql = getSql();
@@ -47,6 +77,11 @@ export async function getRisks() {
   return rows as RiskRecord[];
 }
 
+export async function getRisk(id: string) {
+  const rows = await getRisks();
+  return rows.find((risk) => risk.id === id);
+}
+
 export async function getInspections() {
   if (!hasDatabase) return inspections;
   const sql = getSql();
@@ -57,6 +92,11 @@ export async function getInspections() {
     order by inspection_date desc
   `;
   return rows as InspectionRecord[];
+}
+
+export async function getInspection(id: string) {
+  const rows = await getInspections();
+  return rows.find((inspection) => inspection.id === id);
 }
 
 export async function getActions() {

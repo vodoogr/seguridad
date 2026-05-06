@@ -1,8 +1,9 @@
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
 import { RiskLevel, StatusBadge } from "../components/Tables";
-import { createRisk } from "../actions";
+import { controlRisk, createRisk } from "../actions";
 import { getRisks } from "../../lib/repository";
+import Link from "next/link";
 
 export default async function RiesgosPage() {
   const risks = await getRisks();
@@ -48,11 +49,15 @@ export default async function RiesgosPage() {
             <div className="row risks-head" key={risk.id}>
               <span>{risk.id}</span>
               <span>{risk.area}</span>
-              <span>{risk.risk}</span>
+              <Link href={`/riesgos/${risk.id}`}>{risk.risk}</Link>
               <RiskLevel level={risk.level} />
               <StatusBadge status={risk.status} />
               <span>{risk.owner}</span>
-              <span>{risk.due}</span>
+              <form action={controlRisk} className="inline-form">
+                <input name="id" type="hidden" value={risk.id} />
+                <span>{risk.due}</span>
+                <button type="submit">Controlar</button>
+              </form>
             </div>
           ))}
         </div>

@@ -3,6 +3,7 @@ import { PageHeader } from "../components/PageHeader";
 import { StatusBadge } from "../components/Tables";
 import { createInspection } from "../actions";
 import { getInspections } from "../../lib/repository";
+import Link from "next/link";
 
 export default async function InspeccionesPage() {
   const inspections = await getInspections();
@@ -29,7 +30,9 @@ export default async function InspeccionesPage() {
           <article className="panel item-card" key={item.id}>
             <div>
               <span className="code">{item.id}</span>
-              <h2>{item.area}</h2>
+              <h2>
+                <Link href={`/inspecciones/${item.id}`}>{item.area}</Link>
+              </h2>
               <p>{item.type}</p>
             </div>
             <div className="item-meta">

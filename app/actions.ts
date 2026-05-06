@@ -74,3 +74,29 @@ export async function createDocument(formData: FormData) {
   `;
   revalidatePath("/documentacion");
 }
+
+export async function closeCorrectiveAction(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    update corrective_actions
+    set status = 'Cerrada'
+    where id = ${String(formData.get("id"))}
+  `;
+  revalidatePath("/acciones");
+  revalidatePath("/");
+}
+
+export async function controlRisk(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    update risks
+    set status = 'Controlado'
+    where id = ${String(formData.get("id"))}
+  `;
+  revalidatePath("/riesgos");
+  revalidatePath("/");
+}
