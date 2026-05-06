@@ -1,7 +1,7 @@
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
 import { StatusBadge } from "../components/Tables";
-import { createAppUser } from "../actions";
+import { createAppUser, updateAccessCode } from "../actions";
 import { getAppUsers } from "../../lib/repository";
 import { getDatabaseInfo } from "../../lib/db";
 import { Database, Power } from "lucide-react";
@@ -42,6 +42,19 @@ export default async function AdministradorPage() {
         </select>
         <button type="submit">Guardar usuario</button>
       </form>
+
+      <article className="panel admin-section">
+        <div className="panel-title">
+          <h2>Cambiar clave de acceso</h2>
+          <span>Minimo 8 caracteres</span>
+        </div>
+        <form action={updateAccessCode} className="form-panel">
+          <input name="current_code" type="password" placeholder="Clave actual" required />
+          <input name="new_code" type="password" placeholder="Nueva clave" required minLength={8} />
+          <input name="repeat_code" type="password" placeholder="Repetir nueva clave" required minLength={8} />
+          <button type="submit">Actualizar clave</button>
+        </form>
+      </article>
 
       <article className="panel">
         <div className="panel-title">

@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   if (isAsset || isPublic) return NextResponse.next();
 
   const session = request.cookies.get("app_session")?.value;
-  if (session === process.env.APP_ACCESS_CODE && process.env.APP_ACCESS_CODE) {
+  if (session === "ok") {
     return NextResponse.next();
   }
 

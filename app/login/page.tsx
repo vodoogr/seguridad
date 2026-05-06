@@ -1,5 +1,5 @@
 import { ShieldCheck } from "lucide-react";
-import { adminLogin, login } from "../actions";
+import { login } from "../actions";
 
 export default function LoginPage() {
   return (
@@ -22,18 +22,12 @@ export default function LoginPage() {
         <div className="login-panel">
           <div>
             <h2>Acceso administrador</h2>
-            <p className="muted-text">Entrada inicial para configurar y gestionar la aplicacion.</p>
+            <p className="muted-text">Introduce la clave privada de administrador.</p>
           </div>
-          <form action={adminLogin} className="login-form">
-            <button type="submit">Entrar como administrador</button>
-          </form>
-
-          <div className="login-separator">o</div>
-
           <form action={login} className="login-form">
             <label htmlFor="access_code">Codigo de acceso</label>
             <input id="access_code" name="access_code" type="password" required />
-            <button type="submit">Entrar con codigo</button>
+            <button type="submit">Entrar como administrador</button>
           </form>
         </div>
       </section>

@@ -85,6 +85,12 @@ create table if not exists app_users (
   created_at timestamptz not null default now()
 );
 
+create table if not exists app_settings (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz not null default now()
+);
+
 alter table documents add column if not exists file_name text;
 alter table documents add column if not exists file_type text;
 alter table documents add column if not exists file_data bytea;
@@ -173,3 +179,7 @@ insert into app_users (id, name, email, role, status)
 values
   ('USR-001', 'Administrador PRL', 'admin@empresa.com', 'Administrador', 'Activo')
 on conflict (id) do nothing;
+
+insert into app_settings (key, value)
+values ('APP_ACCESS_CODE', 'Seguridad2026!')
+on conflict (key) do nothing;

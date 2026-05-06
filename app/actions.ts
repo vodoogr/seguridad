@@ -4,30 +4,17 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSql, hasDatabase } from "../lib/db";
+import { getAccessCode } from "../lib/settings";
 
 export async function login(formData: FormData) {
   const accessCode = String(formData.get("access_code"));
+  const validCode = await getAccessCode();
 
-  if (!process.env.APP_ACCESS_CODE || accessCode !== process.env.APP_ACCESS_CODE) {
+  if (!validCode || accessCode !== validCode) {
     redirect("/login");
   }
 
-  cookies().set("app_session", accessCode, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: true,
-    path: "/",
-    maxAge: 60 * 60 * 8
-  });
-  redirect("/");
-}
-
-export async function adminLogin() {
-  if (!process.env.APP_ACCESS_CODE) {
-    redirect("/login");
-  }
-
-  cookies().set("app_session", process.env.APP_ACCESS_CODE, {
+  cookies().set("app_session", "ok", {
     httpOnly: true,
     sameSite: "lax",
     secure: true,
@@ -181,6 +168,36 @@ export async function createAppUser(formData: FormData) {
       'Activo'
     )
   `;
+  revalidatePath("/administrador");
+  redirect("/administrador");
+}
+
+export async function updateAccessCode(formData: FormData) {
+  if (!hasDatabase) redirect("/administrador");
+
+  const currentCode = String(formData.get("current_code"));
+  const newCode = String(formData.get("new_code"));
+  const repeatCode = String(formData.get("repeat_code"));
+  const validCode = await getAccessCode();
+
+  if (!validCode || currentCode !== validCode || newCode.length < 8 || newCode !== repeatCode) {
+    redirect("/administrador");
+  }
+
+  const sql = getSql();
+  await sql`
+    insert into app_settings (key, value)
+    values ('APP_ACCESS_CODE', ${newCode})
+    on conflict (key) do update set value = excluded.value, updated_at = now()
+  `;
+
+  cookies().set("app_session", "ok", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 60 * 60 * 8
+  });
   revalidatePath("/administrador");
   redirect("/administrador");
 }
