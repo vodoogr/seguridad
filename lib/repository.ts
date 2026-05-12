@@ -1,4 +1,4 @@
-import { actions, appUsers, committee, documents, incidents, inspections, risks } from "../app/data";
+import { actions, committee, documents, incidents, inspections, risks } from "../app/data";
 import { getSql, hasDatabase } from "./db";
 
 type RiskRecord = {
@@ -54,15 +54,6 @@ type IncidentRecord = {
   owner: string;
   date: string;
   status: string;
-};
-
-type AppUserRecord = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  authStatus?: string;
 };
 
 export async function getDashboardStats() {
@@ -210,36 +201,4 @@ export async function getIncidents() {
     order by incident_date desc
   `;
   return rows as IncidentRecord[];
-}
-
-export async function getAppUsers() {
-  if (!hasDatabase) return appUsers;
-  const sql = getSql();
-
-  const [authTable] = await sql`
-    select to_regclass('neon_auth.users_sync') as auth_table
-  `;
-
-  if (!authTable?.auth_table) {
-    const rows = await sql`
-      select id, name, email, role, status, auth_status as "authStatus"
-      from app_users
-      order by created_at desc
-    `;
-    return rows as AppUserRecord[];
-  }
-
-  const rows = await sql`
-    select
-      au.id,
-      coalesce(nu.name, au.name) as name,
-      au.email,
-      au.role,
-      au.status,
-      case when nu.email is null then au.auth_status else 'Activo Neon Auth' end as "authStatus"
-    from app_users au
-    left join neon_auth.users_sync nu on lower(nu.email) = lower(au.email)
-    order by au.created_at desc
-  `;
-  return rows as AppUserRecord[];
 }

@@ -69,8 +69,11 @@ nav {
 }
 
 nav a {
+  align-items: center;
   border-radius: 8px;
   color: #d9e3de;
+  display: flex;
+  gap: 10px;
   padding: 12px 14px;
   text-decoration: none;
 }
@@ -275,11 +278,6 @@ textarea {
 
 .row.actions-head {
   grid-template-columns: 0.7fr 2fr 0.8fr 1fr 0.9fr 1.2fr;
-  min-width: 980px;
-}
-
-.row.users-head {
-  grid-template-columns: 0.8fr 1.2fr 1.8fr 1fr 0.8fr 1.1fr;
   min-width: 980px;
 }
 
@@ -505,12 +503,11 @@ li svg {
   gap: 12px;
 }
 
-.login-separator {
-  color: var(--muted);
-  margin: 18px 0;
-  text-align: center;
+.panel-title h2 {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
 }
-
 .admin-status {
   display: grid;
   gap: 14px;

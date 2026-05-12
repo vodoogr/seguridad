@@ -24,42 +24,8 @@ export async function login(formData: FormData) {
   redirect("/");
 }
 
-export async function userLogin(formData: FormData) {
-  if (!hasDatabase) redirect("/login");
-  const email = String(formData.get("email"));
-  const accessCode = String(formData.get("access_code"));
-  const sql = getSql();
-  const [user] = await sql`
-    select id
-    from app_users
-    where lower(email) = lower(${email})
-      and access_code = ${accessCode}
-      and status = 'Activo'
-    limit 1
-  `;
-
-  if (!user) redirect("/login");
-
-  cookies().set("app_session", "ok", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: true,
-    path: "/",
-    maxAge: 60 * 60 * 8
-  });
-  cookies().set("app_user", email, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: true,
-    path: "/",
-    maxAge: 60 * 60 * 8
-  });
-  redirect("/");
-}
-
 export async function logout() {
   cookies().delete("app_session");
-  cookies().delete("app_user");
   redirect("/login");
 }
 
@@ -191,26 +157,6 @@ export async function createIncident(formData: FormData) {
   revalidatePath("/incidencias");
   revalidatePath("/");
   redirect("/incidencias");
-}
-
-export async function createAppUser(formData: FormData) {
-  if (!hasDatabase) redirect("/administrador");
-  const sql = getSql();
-
-  await sql`
-    insert into app_users (id, name, email, access_code, role, status, auth_status)
-    values (
-      ${String(formData.get("id"))},
-      ${String(formData.get("name"))},
-      ${String(formData.get("email"))},
-      ${String(formData.get("access_code"))},
-      ${String(formData.get("role"))},
-      'Activo',
-      'Invitacion pendiente'
-    )
-  `;
-  revalidatePath("/administrador");
-  redirect("/administrador");
 }
 
 export async function updateAccessCode(formData: FormData) {

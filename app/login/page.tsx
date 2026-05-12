@@ -1,5 +1,5 @@
 import { ShieldCheck } from "lucide-react";
-import { login, userLogin } from "../actions";
+import { login } from "../actions";
 
 export default function LoginPage() {
   return (
@@ -28,14 +28,6 @@ export default function LoginPage() {
             <label htmlFor="access_code">Codigo de acceso</label>
             <input id="access_code" name="access_code" type="password" required />
             <button type="submit">Entrar como administrador</button>
-          </form>
-          <div className="login-separator">Usuarios</div>
-          <form action={userLogin} className="login-form">
-            <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" required />
-            <label htmlFor="user_access_code">Clave de usuario</label>
-            <input id="user_access_code" name="access_code" type="password" required />
-            <button type="submit">Entrar como usuario</button>
           </form>
         </div>
       </section>

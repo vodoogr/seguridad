@@ -21,11 +21,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav>
-          {navItems.map((item) => (
-            <Link className={pathname === item.href ? "active" : ""} href={item.href} key={item.href}>
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link className={pathname === item.href ? "active" : ""} href={item.href} key={item.href}>
+                <Icon size={18} />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
         <form action={logout} className="logout-form">
           <button type="submit">Cerrar sesion</button>

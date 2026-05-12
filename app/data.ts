@@ -2,20 +2,25 @@ import {
   AlertTriangle,
   CalendarDays,
   ClipboardCheck,
+  FileWarning,
   FileText,
+  Gauge,
+  ListChecks,
+  LockKeyhole,
+  ShieldAlert,
   ShieldCheck,
   Users
 } from "lucide-react";
 
 export const navItems = [
-  { label: "Panel", href: "/" },
-  { label: "Incidencias", href: "/incidencias" },
-  { label: "Riesgos", href: "/riesgos" },
-  { label: "Inspecciones", href: "/inspecciones" },
-  { label: "Acciones", href: "/acciones" },
-  { label: "Comite", href: "/comite" },
-  { label: "Documentacion", href: "/documentacion" },
-  { label: "Administrador", href: "/administrador" }
+  { label: "Panel", href: "/", icon: Gauge },
+  { label: "Incidencias", href: "/incidencias", icon: ShieldAlert },
+  { label: "Riesgos", href: "/riesgos", icon: AlertTriangle },
+  { label: "Inspecciones", href: "/inspecciones", icon: ShieldCheck },
+  { label: "Acciones", href: "/acciones", icon: ListChecks },
+  { label: "Comite", href: "/comite", icon: Users },
+  { label: "Documentacion", href: "/documentacion", icon: FileWarning },
+  { label: "Administrador", href: "/administrador", icon: LockKeyhole }
 ];
 
 export const metrics = [
@@ -154,23 +159,5 @@ export const incidents = [
     owner: "Jefe de turno",
     date: "03/05/2026",
     status: "Abierta"
-  }
-];
-
-export const appUsers: Array<{
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  authStatus?: string;
-}> = [
-  {
-    id: "USR-001",
-    name: "Administrador PRL",
-    email: "admin@empresa.com",
-    role: "Administrador",
-    status: "Activo",
-    authStatus: "Activo"
   }
 ];
