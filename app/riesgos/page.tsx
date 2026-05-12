@@ -1,8 +1,9 @@
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
 import { RiskLevel, StatusBadge } from "../components/Tables";
-import { controlRisk, createRisk } from "../actions";
+import { controlRisk, createRisk, deleteRisk } from "../actions";
 import { getRisks } from "../../lib/repository";
+import { Check, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default async function RiesgosPage() {
@@ -43,7 +44,7 @@ export default async function RiesgosPage() {
             <span>Nivel</span>
             <span>Estado</span>
             <span>Responsable</span>
-            <span>Fecha limite</span>
+            <span>Acciones</span>
           </div>
           {risks.map((risk) => (
             <div className="row risks-head" key={risk.id}>
@@ -53,11 +54,23 @@ export default async function RiesgosPage() {
               <RiskLevel level={risk.level} />
               <StatusBadge status={risk.status} />
               <span>{risk.owner}</span>
-              <form action={controlRisk} className="inline-form">
-                <input name="id" type="hidden" value={risk.id} />
+              <div className="inline-actions">
                 <span>{risk.due}</span>
-                <button type="submit">Controlar</button>
-              </form>
+                {risk.status !== "Controlado" ? (
+                  <form action={controlRisk} className="inline-form">
+                    <input name="id" type="hidden" value={risk.id} />
+                    <button aria-label="Controlar riesgo" className="icon-button" type="submit" title="Controlar">
+                      <Check size={16} />
+                    </button>
+                  </form>
+                ) : null}
+                <form action={deleteRisk} className="inline-form">
+                  <input name="id" type="hidden" value={risk.id} />
+                  <button aria-label="Borrar riesgo" className="icon-button danger" type="submit" title="Borrar">
+                    <Trash2 size={16} />
+                  </button>
+                </form>
+              </div>
             </div>
           ))}
         </div>

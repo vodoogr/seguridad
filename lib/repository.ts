@@ -56,6 +56,12 @@ type IncidentRecord = {
   status: string;
 };
 
+type CommitteeMemberRecord = {
+  id: number | string;
+  name: string;
+  role?: string;
+};
+
 export async function getDashboardStats() {
   const riskRows = await getRisks();
   const actionRows = await getActions();
@@ -136,6 +142,7 @@ export async function getCommittee() {
   if (!hasDatabase) {
     return {
       ...committee,
+      members: committee.members.map((name, index) => ({ id: `seed-${index}`, name })),
       lastMinutesDate: "Sin acta"
     };
   }
@@ -146,7 +153,12 @@ export async function getCommittee() {
     order by meeting_date desc
     limit 1
   `;
-  const members = await sql`select name from committee_members where active = true order by name asc`;
+  const members = await sql`
+    select id, name, role
+    from committee_members
+    where active = true
+    order by name asc
+  `;
   const agenda = await sql`
     select item
     from committee_agenda
@@ -157,7 +169,7 @@ export async function getCommittee() {
   return {
     nextDate: meeting?.nextDate ?? committee.nextDate,
     lastMinutesDate: meeting?.lastMinutesDate ?? "Sin acta",
-    members: members.map((member) => member.name),
+    members: members as CommitteeMemberRecord[],
     agenda: agenda.map((row) => row.item)
   };
 }

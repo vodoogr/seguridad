@@ -137,6 +137,19 @@ export async function controlRisk(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function deleteRisk(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+  const id = String(formData.get("id"));
+
+  await sql`
+    delete from risks
+    where id = ${id}
+  `;
+  revalidatePath("/riesgos");
+  revalidatePath("/");
+}
+
 export async function createIncident(formData: FormData) {
   if (!hasDatabase) redirect("/incidencias");
   const sql = getSql();
@@ -211,6 +224,19 @@ export async function createCommitteeMember(formData: FormData) {
   `;
   revalidatePath("/comite");
   redirect("/comite");
+}
+
+export async function deleteCommitteeMember(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    update committee_members
+    set active = false
+    where id = ${Number(formData.get("id"))}
+  `;
+  revalidatePath("/comite");
+  revalidatePath("/");
 }
 
 export async function createCommitteeMeeting(formData: FormData) {

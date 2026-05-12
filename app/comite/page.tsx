@@ -1,7 +1,7 @@
-import { CheckCircle2, UserRound } from "lucide-react";
+import { CheckCircle2, Trash2, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
-import { createCommitteeMember } from "../actions";
+import { createCommitteeMember, deleteCommitteeMember } from "../actions";
 import { getCommittee, getCommitteeMeetings } from "../../lib/repository";
 
 export default async function ComitePage() {
@@ -24,9 +24,17 @@ export default async function ComitePage() {
           </form>
           <ul>
             {committee.members.map((member) => (
-              <li key={member}>
-                <UserRound size={17} />
-                {member}
+              <li className="list-row" key={member.id}>
+                <span>
+                  <UserRound size={17} />
+                  {member.name}
+                </span>
+                <form action={deleteCommitteeMember}>
+                  <input name="id" type="hidden" value={member.id} />
+                  <button aria-label="Borrar miembro" className="icon-button danger" type="submit" title="Borrar">
+                    <Trash2 size={16} />
+                  </button>
+                </form>
               </li>
             ))}
           </ul>
