@@ -200,6 +200,10 @@ textarea {
   grid-column: 1 / -1;
 }
 
+.form-panel.expanded .file-control {
+  grid-column: span 1;
+}
+
 .form-panel.short {
   grid-template-columns: 1fr 220px 280px auto;
 }
@@ -383,6 +387,14 @@ li {
   gap: 10px;
 }
 
+.edit-row {
+  align-items: center;
+  display: grid;
+  flex: 1;
+  gap: 8px;
+  grid-template-columns: auto minmax(130px, 1fr) minmax(120px, 0.8fr) minmax(160px, 1fr) auto;
+}
+
 li svg {
   color: var(--blue);
   flex: 0 0 auto;
@@ -402,6 +414,69 @@ li svg {
 
 .icon-button.danger:hover {
   background: #fecdca;
+}
+
+.danger-button {
+  background: #fee4e2;
+  color: var(--red);
+}
+
+.danger-button:hover {
+  background: #fecdca;
+}
+
+.file-control {
+  align-items: center;
+  background: var(--blue-soft);
+  border: 1px dashed #8bb7ef;
+  border-radius: 8px;
+  color: var(--blue-dark);
+  cursor: pointer;
+  display: flex;
+  font-weight: 700;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.file-control input {
+  display: none;
+}
+
+.meeting-card {
+  align-items: stretch;
+}
+
+.meeting-main,
+.meeting-form,
+.attachment-list {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.meeting-form {
+  grid-template-columns: 180px 180px 1fr auto;
+}
+
+.meeting-form textarea {
+  min-height: 88px;
+}
+
+.meeting-form textarea,
+.meeting-form .file-control {
+  grid-column: 1 / -1;
+}
+
+.attachment-row {
+  align-items: center;
+  background: #f8fbff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 8px 10px;
 }
 
 .cards-list {
@@ -672,6 +747,11 @@ dd {
 
   .form-panel.expanded textarea {
     grid-column: auto;
+  }
+
+  .edit-row,
+  .meeting-form {
+    grid-template-columns: 1fr;
   }
 
   .item-card {

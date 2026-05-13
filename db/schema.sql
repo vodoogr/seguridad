@@ -47,6 +47,15 @@ create table if not exists committee_meetings (
   file_data bytea
 );
 
+create table if not exists committee_meeting_documents (
+  id bigserial primary key,
+  meeting_id bigint not null references committee_meetings(id) on delete cascade,
+  file_name text not null,
+  file_type text,
+  file_data bytea,
+  uploaded_at timestamptz not null default now()
+);
+
 create table if not exists committee_agenda (
   id bigserial primary key,
   meeting_id bigint not null references committee_meetings(id) on delete cascade,
@@ -89,6 +98,17 @@ alter table committee_members add column if not exists email text;
 alter table committee_meetings add column if not exists file_name text;
 alter table committee_meetings add column if not exists file_type text;
 alter table committee_meetings add column if not exists file_data bytea;
+
+insert into committee_meeting_documents (meeting_id, file_name, file_type, file_data)
+select id, file_name, file_type, file_data
+from committee_meetings
+where file_name is not null
+  and not exists (
+    select 1
+    from committee_meeting_documents existing
+    where existing.meeting_id = committee_meetings.id
+      and existing.file_name = committee_meetings.file_name
+  );
 
 insert into risks (id, area, risk, level, owner, due_date, status)
 values

@@ -1,6 +1,7 @@
 import { AppShell } from "../../components/AppShell";
 import { PageHeader } from "../../components/PageHeader";
 import { createCommitteeMeeting } from "../../actions";
+import { FileUp, Save } from "lucide-react";
 
 export default function NuevaReunionPage() {
   return (
@@ -13,10 +14,14 @@ export default function NuevaReunionPage() {
           <option>Celebrada</option>
           <option>Cancelada</option>
         </select>
-        <input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" name="file" type="file" />
+        <label className="file-control">
+          <FileUp size={18} />
+          <span>Adjuntar documentos</span>
+          <input accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" name="files" type="file" multiple />
+        </label>
         <textarea name="agenda" placeholder="Orden del dia, un punto por linea" required />
         <textarea name="minutes" placeholder="Contenido del acta" />
-        <button type="submit">Guardar reunion</button>
+        <button type="submit"><Save size={18} /> Guardar reunion</button>
       </form>
     </AppShell>
   );

@@ -226,6 +226,22 @@ export async function createCommitteeMember(formData: FormData) {
   redirect("/comite");
 }
 
+export async function updateCommitteeMember(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    update committee_members
+    set
+      name = ${String(formData.get("name"))},
+      role = ${String(formData.get("role"))},
+      email = ${String(formData.get("email"))}
+    where id = ${Number(formData.get("id"))}
+  `;
+  revalidatePath("/comite");
+  revalidatePath("/");
+}
+
 export async function deleteCommitteeMember(formData: FormData) {
   if (!hasDatabase) return;
   const sql = getSql();
@@ -242,20 +258,14 @@ export async function deleteCommitteeMember(formData: FormData) {
 export async function createCommitteeMeeting(formData: FormData) {
   if (!hasDatabase) redirect("/comite");
   const sql = getSql();
-  const file = formData.get("file");
-  const uploadedFile = file instanceof File && file.size > 0 ? file : null;
-  const fileData = uploadedFile ? Buffer.from(await uploadedFile.arrayBuffer()) : null;
   const minutes = String(formData.get("minutes"));
 
   const [meeting] = await sql`
-    insert into committee_meetings (meeting_date, status, minutes, file_name, file_type, file_data)
+    insert into committee_meetings (meeting_date, status, minutes)
     values (
       ${String(formData.get("meeting_date"))},
       ${String(formData.get("status"))},
-      ${minutes},
-      ${uploadedFile?.name ?? null},
-      ${uploadedFile?.type ?? null},
-      ${fileData}
+      ${minutes}
     )
     returning id
   `;
@@ -273,6 +283,75 @@ export async function createCommitteeMeeting(formData: FormData) {
     `;
   }
 
+  await saveMeetingDocuments(Number(meeting.id), formData);
   revalidatePath("/comite");
   redirect("/comite");
+}
+
+export async function updateCommitteeMeeting(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+  const meetingId = Number(formData.get("id"));
+
+  await sql`
+    update committee_meetings
+    set
+      meeting_date = ${String(formData.get("meeting_date"))},
+      status = ${String(formData.get("status"))},
+      minutes = ${String(formData.get("minutes"))}
+    where id = ${meetingId}
+  `;
+
+  await sql`delete from committee_agenda where meeting_id = ${meetingId}`;
+  const agenda = String(formData.get("agenda"))
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  for (let index = 0; index < agenda.length; index += 1) {
+    await sql`
+      insert into committee_agenda (meeting_id, item, position)
+      values (${meetingId}, ${agenda[index]}, ${index + 1})
+    `;
+  }
+
+  await saveMeetingDocuments(meetingId, formData);
+  revalidatePath("/comite");
+  revalidatePath("/");
+}
+
+export async function deleteCommitteeMeeting(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    delete from committee_meetings
+    where id = ${Number(formData.get("id"))}
+  `;
+  revalidatePath("/comite");
+  revalidatePath("/");
+}
+
+export async function deleteCommitteeMeetingDocument(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    delete from committee_meeting_documents
+    where id = ${Number(formData.get("id"))}
+  `;
+  revalidatePath("/comite");
+}
+
+async function saveMeetingDocuments(meetingId: number, formData: FormData) {
+  const sql = getSql();
+  const files = formData.getAll("files").filter((file): file is File => file instanceof File && file.size > 0);
+
+  for (const file of files) {
+    const fileData = Buffer.from(await file.arrayBuffer());
+    await sql`
+      insert into committee_meeting_documents (meeting_id, file_name, file_type, file_data)
+      values (${meetingId}, ${file.name}, ${file.type}, ${fileData})
+    `;
+  }
 }
