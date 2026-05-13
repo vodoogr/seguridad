@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 
@@ -12,7 +12,7 @@ export function KpiCard({
   label: string;
   value: string;
   detail?: string;
-  icon: ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
   tone?: "neutral" | "info" | "success" | "warning" | "danger";
 }) {
   return (
