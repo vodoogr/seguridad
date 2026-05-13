@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   CalendarDays,
   ClipboardCheck,
+  LayoutDashboard,
   FileWarning,
   FileText,
   Gauge,
@@ -14,6 +15,7 @@ import {
 
 export const navItems = [
   { label: "Panel", href: "/", icon: Gauge },
+  { label: "Vista V2", href: "/dashboard-v2", icon: LayoutDashboard },
   { label: "Incidencias", href: "/incidencias", icon: ShieldAlert },
   { label: "Riesgos", href: "/riesgos", icon: AlertTriangle },
   { label: "Inspecciones", href: "/inspecciones", icon: ShieldCheck },

@@ -4,7 +4,6 @@ import { StatusCard } from "../../components/cards/StatusCard";
 import { DataTableShell } from "../../components/data-display/DataTableShell";
 import { StatusBadgeV2 } from "../../components/data-display/StatusBadge";
 import { AppShellV2 } from "../../components/layout/AppShellV2";
-import { Header } from "../../components/layout/Header";
 import { FadeIn } from "../../components/motion/FadeIn";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
@@ -29,12 +28,18 @@ export default async function DashboardV2Page() {
   return (
     <AppShellV2 navItems={navItems}>
       <FadeIn>
-        <Header
-          eyebrow="Vista previa UI V2"
-          title="Panel operativo PRL"
-          description="Interfaz SaaS moderna para evaluar la nueva capa visual sin sustituir la pantalla principal."
-          actions={<Button variant="secondary">Preview aislado</Button>}
-        />
+        <section className="mb-6 overflow-hidden rounded-xl border border-slate-800 bg-slate-950 p-6 text-white shadow-panel">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="mb-2 text-sm font-semibold text-blue-300">Vista previa UI V2</p>
+              <h1 className="text-3xl font-bold tracking-normal md:text-4xl">Panel operativo PRL</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+                Nueva interfaz SaaS con componentes reutilizables, jerarquia visual limpia y datos actuales de la aplicacion.
+              </p>
+            </div>
+            <Button className="bg-blue-600 hover:bg-blue-700" variant="default">Preview aislado</Button>
+          </div>
+        </section>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat) => {

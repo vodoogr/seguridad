@@ -3,7 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AlertTriangle, FileWarning, Gauge, HardHat, ListChecks, LockKeyhole, LogOut, ShieldAlert, ShieldCheck, Users } from "lucide-react";
+import { AlertTriangle, FileWarning, Gauge, HardHat, LayoutDashboard, ListChecks, LockKeyhole, LogOut, ShieldAlert, ShieldCheck, Users } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
 
@@ -14,6 +14,7 @@ type SidebarItem = {
 
 const sidebarIcons: Record<string, LucideIcon> = {
   "/": Gauge,
+  "/dashboard-v2": LayoutDashboard,
   "/incidencias": ShieldAlert,
   "/riesgos": AlertTriangle,
   "/inspecciones": ShieldCheck,
