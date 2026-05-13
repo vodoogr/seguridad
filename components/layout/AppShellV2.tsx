@@ -1,11 +1,12 @@
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { PageContainer } from "./PageContainer";
 
 type ShellItem = {
   label: string;
   href: string;
-  icon: ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
 };
 
 export function AppShellV2({ children, navItems }: { children: ReactNode; navItems: ShellItem[] }) {

@@ -1,6 +1,6 @@
 "use client";
 
-import type * as React from "react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HardHat, LogOut } from "lucide-react";
@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 type SidebarItem = {
   label: string;
   href: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
 };
 
 export function Sidebar({
