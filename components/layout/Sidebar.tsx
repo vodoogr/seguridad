@@ -3,14 +3,24 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HardHat, LogOut } from "lucide-react";
+import { AlertTriangle, FileWarning, Gauge, HardHat, ListChecks, LockKeyhole, LogOut, ShieldAlert, ShieldCheck, Users } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
 
 type SidebarItem = {
   label: string;
   href: string;
-  icon: LucideIcon;
+};
+
+const sidebarIcons: Record<string, LucideIcon> = {
+  "/": Gauge,
+  "/incidencias": ShieldAlert,
+  "/riesgos": AlertTriangle,
+  "/inspecciones": ShieldCheck,
+  "/acciones": ListChecks,
+  "/comite": Users,
+  "/documentacion": FileWarning,
+  "/administrador": LockKeyhole
 };
 
 export function Sidebar({
@@ -36,7 +46,7 @@ export function Sidebar({
 
       <nav className="grid gap-1">
         {items.map((item) => {
-          const Icon = item.icon;
+          const Icon = sidebarIcons[item.href] ?? Gauge;
           const active = pathname === item.href;
           return (
             <Link

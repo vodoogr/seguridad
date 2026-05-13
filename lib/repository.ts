@@ -199,33 +199,37 @@ export async function getCommitteeMeetings() {
   if (!hasDatabase) return [];
   const sql = getSql();
 
-  const rows = await sql`
-    select
-      id,
-      to_char(meeting_date, 'DD/MM/YYYY') as date,
-      to_char(meeting_date, 'YYYY-MM-DD') as "rawDate",
-      status,
-      minutes,
-      file_name as "fileName"
-    from committee_meetings
-    order by meeting_date desc
-  `;
-  const documents = await sql`
-    select id, meeting_id as "meetingId", file_name as "fileName", file_type as "fileType"
-    from committee_meeting_documents
-    order by uploaded_at desc
-  `;
-  const agendaRows = await sql`
-    select meeting_id as "meetingId", item
-    from committee_agenda
-    order by position asc
-  `;
+  try {
+    const rows = await sql`
+      select
+        id,
+        to_char(meeting_date, 'DD/MM/YYYY') as date,
+        to_char(meeting_date, 'YYYY-MM-DD') as "rawDate",
+        status,
+        minutes,
+        file_name as "fileName"
+      from committee_meetings
+      order by meeting_date desc
+    `;
+    const documents = await sql`
+      select id, meeting_id as "meetingId", file_name as "fileName", file_type as "fileType"
+      from committee_meeting_documents
+      order by uploaded_at desc
+    `;
+    const agendaRows = await sql`
+      select meeting_id as "meetingId", item
+      from committee_agenda
+      order by position asc
+    `;
 
-  return rows.map((meeting) => ({
-    ...meeting,
-    agenda: agendaRows.filter((row) => row.meetingId === meeting.id).map((row) => row.item),
-    documents: documents.filter((document) => document.meetingId === meeting.id)
-  })) as MeetingRecord[];
+    return rows.map((meeting) => ({
+      ...meeting,
+      agenda: agendaRows.filter((row) => row.meetingId === meeting.id).map((row) => row.item),
+      documents: documents.filter((document) => document.meetingId === meeting.id)
+    })) as MeetingRecord[];
+  } catch {
+    return [];
+  }
 }
 
 export async function getDocuments() {
