@@ -150,7 +150,12 @@ export async function getCommittee() {
   if (!hasDatabase) {
     return {
       ...committee,
-      members: committee.members.map((name, index) => ({ id: `seed-${index}`, name })),
+      members: committee.members.map((name, index) => ({
+        id: `seed-${index}`,
+        name,
+        role: "",
+        email: ""
+      })) satisfies CommitteeMemberRecord[],
       lastMinutesDate: "Sin acta"
     };
   }
