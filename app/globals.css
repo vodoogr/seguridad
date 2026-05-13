@@ -1,3 +1,9 @@
+@import "../design-system/globals.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --bg: #f3f7fb;
   --ink: #102033;
