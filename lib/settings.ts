@@ -17,3 +17,21 @@ export async function getAccessCode() {
     return process.env.APP_ACCESS_CODE ?? "";
   }
 }
+
+export async function getCompanyLogo() {
+  if (!hasDatabase) return null;
+
+  try {
+    const sql = getSql();
+    const [asset] = await sql`
+      select file_name, file_type, file_data
+      from app_assets
+      where key = 'COMPANY_LOGO'
+      limit 1
+    `;
+
+    return asset ?? null;
+  } catch {
+    return null;
+  }
+}

@@ -2,7 +2,7 @@ import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
 import { RiskLevel, StatusBadge } from "../components/Tables";
 import { controlRisk, createRisk, deleteRisk } from "../actions";
-import { getRisks } from "../../lib/repository";
+import { getActions, getRisks } from "../../lib/repository";
 import { Check, ClipboardPlus, Filter, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -13,21 +13,27 @@ export default async function RiesgosPage({
     area?: string;
     level?: string;
     owner?: string;
+    status?: string;
   };
 }) {
   const risks = await getRisks();
+  const actions = await getActions();
   const selectedArea = searchParams?.area?.trim() ?? "";
   const selectedLevel = searchParams?.level?.trim() ?? "";
   const selectedOwner = searchParams?.owner?.trim() ?? "";
+  const selectedStatus = searchParams?.status?.trim() ?? "";
 
   const areas = Array.from(new Set(risks.map((risk) => risk.area))).sort((a, b) => a.localeCompare(b));
   const levels = Array.from(new Set(risks.map((risk) => risk.level)));
   const owners = Array.from(new Set(risks.map((risk) => risk.owner))).sort((a, b) => a.localeCompare(b));
+  const statuses = Array.from(new Set(risks.map((risk) => risk.status)));
+  const riskIdsWithAction = new Set(actions.map((action) => action.risk).filter(Boolean));
 
   const filteredRisks = risks.filter((risk) => {
     if (selectedArea && risk.area !== selectedArea) return false;
     if (selectedLevel && risk.level !== selectedLevel) return false;
     if (selectedOwner && risk.owner !== selectedOwner) return false;
+    if (selectedStatus && risk.status !== selectedStatus) return false;
     return true;
   });
 
@@ -87,6 +93,14 @@ export default async function RiesgosPage({
               </option>
             ))}
           </select>
+          <select defaultValue={selectedStatus} name="status">
+            <option value="">Todos los estados</option>
+            {statuses.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
           <button type="submit">Filtrar</button>
           <Link className="button-link secondary-link" href="/riesgos">
             Limpiar
@@ -118,14 +132,16 @@ export default async function RiesgosPage({
               <span>{risk.owner}</span>
               <div className="inline-actions">
                 <span>{risk.due}</span>
-                <Link
-                  aria-label="Pasar a acciones"
-                  className="icon-button"
-                  href={`/acciones/nueva?risk_id=${encodeURIComponent(risk.id)}`}
-                  title="Crear accion vinculada"
-                >
-                  <ClipboardPlus size={16} />
-                </Link>
+                {!riskIdsWithAction.has(risk.id) ? (
+                  <Link
+                    aria-label="Pasar a acciones"
+                    className="icon-button"
+                    href={`/acciones/nueva?risk_id=${encodeURIComponent(risk.id)}`}
+                    title="Crear accion vinculada"
+                  >
+                    <ClipboardPlus size={16} />
+                  </Link>
+                ) : null}
                 {risk.status !== "Controlado" ? (
                   <form action={controlRisk} className="inline-form">
                     <input name="id" type="hidden" value={risk.id} />

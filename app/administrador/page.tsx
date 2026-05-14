@@ -1,8 +1,8 @@
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
-import { updateAccessCode } from "../actions";
+import { updateAccessCode, updateCompanyLogo } from "../actions";
 import { getDatabaseInfo } from "../../lib/db";
-import { Database, KeyRound, Power, ShieldCheck } from "lucide-react";
+import { Database, ImageUp, KeyRound, Power, ShieldCheck } from "lucide-react";
 
 export default async function AdministradorPage() {
   const database = getDatabaseInfo();
@@ -51,6 +51,22 @@ export default async function AdministradorPage() {
           <input name="new_code" type="password" placeholder="Nueva clave" required minLength={8} />
           <input name="repeat_code" type="password" placeholder="Repetir nueva clave" required minLength={8} />
           <button type="submit">Actualizar clave</button>
+        </form>
+      </article>
+
+      <article className="panel admin-section">
+        <div className="panel-title">
+          <h2><ImageUp size={20} /> Logo de empresa</h2>
+          <span>Visible en login, panel y documentos</span>
+        </div>
+        <form action={updateCompanyLogo} className="form-panel short">
+          <input
+            accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+            name="logo"
+            required
+            type="file"
+          />
+          <button type="submit">Actualizar logo</button>
         </form>
       </article>
     </AppShell>

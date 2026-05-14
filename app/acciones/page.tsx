@@ -18,7 +18,6 @@ export default async function AccionesPage({
   const risks = await getRisks();
   const selectedStatus = searchParams?.status?.trim() ?? "";
   const filteredActions = selectedStatus ? actions.filter((action) => action.status === selectedStatus) : actions;
-  const exportRows = filteredActions.map((action) => [action.id, action.task, action.risk, action.owner, action.due, action.status]);
 
   return (
     <AppShell>
@@ -64,12 +63,9 @@ export default async function AccionesPage({
           <button type="submit">Ver</button>
           <Link
             className="button-link secondary-link"
-            href={`data:text/csv;charset=utf-8,${encodeURIComponent(
-              ["Codigo,Medida,Riesgo,Responsable,Vencimiento,Estado", ...exportRows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))].join("\n")
-            )}`}
-            download="acciones.csv"
+            href={`/acciones/reporte${selectedStatus ? `?status=${encodeURIComponent(selectedStatus)}` : ""}`}
           >
-            Exportar CSV
+            Exportar PDF
           </Link>
         </form>
       </article>

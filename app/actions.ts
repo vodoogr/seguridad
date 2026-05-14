@@ -125,6 +125,43 @@ export async function createDocument(formData: FormData) {
   redirect("/documentacion");
 }
 
+export async function updateCompanyLogo(formData: FormData) {
+  if (!hasDatabase) redirect("/administrador");
+  const sql = getSql();
+  const file = formData.get("logo");
+  const uploadedFile = file instanceof File && file.size > 0 ? file : null;
+
+  if (!uploadedFile) redirect("/administrador");
+
+  const fileData = Buffer.from(await uploadedFile.arrayBuffer());
+
+  await sql`
+    create table if not exists app_assets (
+      key text primary key,
+      file_name text,
+      file_type text,
+      file_data bytea,
+      updated_at timestamptz not null default now()
+    )
+  `;
+
+  await sql`
+    insert into app_assets (key, file_name, file_type, file_data)
+    values ('COMPANY_LOGO', ${uploadedFile.name}, ${uploadedFile.type}, ${fileData})
+    on conflict (key) do update
+    set
+      file_name = excluded.file_name,
+      file_type = excluded.file_type,
+      file_data = excluded.file_data,
+      updated_at = now()
+  `;
+
+  revalidatePath("/administrador");
+  revalidatePath("/");
+  revalidatePath("/login");
+  redirect("/administrador");
+}
+
 export async function closeCorrectiveAction(formData: FormData) {
   if (!hasDatabase) return;
   const sql = getSql();
@@ -173,6 +210,18 @@ export async function deleteRisk(formData: FormData) {
     where id = ${id}
   `;
   revalidatePath("/riesgos");
+  revalidatePath("/");
+}
+
+export async function deleteIncident(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    delete from incidents
+    where id = ${String(formData.get("id"))}
+  `;
+  revalidatePath("/incidencias");
   revalidatePath("/");
 }
 

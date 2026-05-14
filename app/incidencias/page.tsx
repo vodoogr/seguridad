@@ -1,7 +1,9 @@
 import { AppShell } from "../components/AppShell";
 import { PageHeader } from "../components/PageHeader";
 import { StatusBadge } from "../components/Tables";
+import { deleteIncident } from "../actions";
 import { getIncidents } from "../../lib/repository";
+import { Trash2 } from "lucide-react";
 
 export default async function IncidenciasPage() {
   const incidents = await getIncidents();
@@ -20,6 +22,12 @@ export default async function IncidenciasPage() {
             <div className="item-meta">
               <span>{incident.date}</span>
               <StatusBadge status={incident.status} />
+              <form action={deleteIncident}>
+                <input name="id" type="hidden" value={incident.id} />
+                <button aria-label="Borrar incidencia" className="icon-button danger" title="Borrar incidencia" type="submit">
+                  <Trash2 size={16} />
+                </button>
+              </form>
             </div>
           </article>
         ))}

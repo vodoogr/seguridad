@@ -1,5 +1,5 @@
-import { ShieldCheck } from "lucide-react";
 import { login } from "../actions";
+import { BrandMark } from "../components/BrandMark";
 
 export default function LoginPage() {
   return (
@@ -7,11 +7,9 @@ export default function LoginPage() {
       <section className="landing-login">
         <div className="landing-copy">
           <div className="login-brand">
-            <ShieldCheck size={34} />
-            <div>
-              <strong>Seguridad Almacen</strong>
-              <span>Gestion privada de PRL</span>
-            </div>
+            <BrandMark className="login-logo" login size={70} />
+            <strong>Seguridad Almacen</strong>
+            <span>Gestion privada de PRL</span>
           </div>
           <h1>Control operativo de prevencion para almacenes</h1>
           <p>

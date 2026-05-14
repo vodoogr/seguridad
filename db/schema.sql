@@ -91,6 +91,14 @@ create table if not exists app_settings (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists app_assets (
+  key text primary key,
+  file_name text,
+  file_type text,
+  file_data bytea,
+  updated_at timestamptz not null default now()
+);
+
 alter table documents add column if not exists file_name text;
 alter table documents add column if not exists file_type text;
 alter table documents add column if not exists file_data bytea;

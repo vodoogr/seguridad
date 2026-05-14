@@ -39,15 +39,24 @@ body {
 }
 
 .brand {
-  display: flex;
+  display: grid;
   gap: 12px;
-  align-items: center;
   margin-bottom: 36px;
 }
 
 .brand strong,
 .brand span {
   display: block;
+}
+
+.sidebar-logo {
+  display: block;
+  margin-top: 14px;
+}
+
+.brand-logo {
+  border-radius: 10px;
+  object-fit: contain;
 }
 
 .brand span {
@@ -639,12 +648,14 @@ li svg {
 
 .login-brand {
   align-items: center;
-  display: flex;
-  gap: 12px;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
   margin-bottom: 28px;
 }
 
-.login-brand svg {
+.login-brand svg,
+.login-logo {
   color: var(--green);
 }
 
