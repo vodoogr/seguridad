@@ -20,9 +20,9 @@ export default async function RiesgosPage({
   const selectedLevel = searchParams?.level?.trim() ?? "";
   const selectedOwner = searchParams?.owner?.trim() ?? "";
 
-  const areas = [...new Set(risks.map((risk) => risk.area))].sort((a, b) => a.localeCompare(b));
-  const levels = [...new Set(risks.map((risk) => risk.level))];
-  const owners = [...new Set(risks.map((risk) => risk.owner))].sort((a, b) => a.localeCompare(b));
+  const areas = Array.from(new Set(risks.map((risk) => risk.area))).sort((a, b) => a.localeCompare(b));
+  const levels = Array.from(new Set(risks.map((risk) => risk.level)));
+  const owners = Array.from(new Set(risks.map((risk) => risk.owner))).sort((a, b) => a.localeCompare(b));
 
   const filteredRisks = risks.filter((risk) => {
     if (selectedArea && risk.area !== selectedArea) return false;
