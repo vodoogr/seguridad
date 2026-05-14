@@ -102,6 +102,12 @@ export default async function RiesgosPage({
             ))}
           </select>
           <button type="submit">Filtrar</button>
+          <Link
+            className="button-link secondary-link"
+            href={`/riesgos/reporte?area=${encodeURIComponent(selectedArea)}&level=${encodeURIComponent(selectedLevel)}&owner=${encodeURIComponent(selectedOwner)}&status=${encodeURIComponent(selectedStatus)}`}
+          >
+            Exportar PDF
+          </Link>
           <Link className="button-link secondary-link" href="/riesgos">
             Limpiar
           </Link>
@@ -116,7 +122,7 @@ export default async function RiesgosPage({
           <div className="row risks-head head">
             <span>Codigo</span>
             <span>Area</span>
-            <span>Riesgo</span>
+            <span>Descripcion del riesgo</span>
             <span>Nivel</span>
             <span>Estado</span>
             <span>Responsable</span>
