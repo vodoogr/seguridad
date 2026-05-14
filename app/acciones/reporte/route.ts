@@ -2,7 +2,7 @@ import { PDFFont, PDFDocument, PDFPage, StandardFonts, rgb } from "pdf-lib";
 import { NextRequest, NextResponse } from "next/server";
 import { getSql, hasDatabase } from "../../../lib/db";
 import { getCompanyLogo } from "../../../lib/settings";
-import { actions as mockActions } from "../../data";
+import { actions as mockActions, risks as mockRisks } from "../../data";
 
 export async function GET(request: NextRequest) {
   const owner = request.nextUrl.searchParams.get("owner") ?? "";
@@ -28,30 +28,50 @@ export async function GET(request: NextRequest) {
   page.drawText(`Filtros: ${buildFilterLabel({ owner, status, area })}`, { x: 170, y: 516, size: 11, font, color: rgb(0.38, 0.45, 0.54) });
   page.drawLine({ start: { x: 42, y: 490 }, end: { x: 800, y: 490 }, thickness: 1, color: rgb(0.84, 0.89, 0.93) });
 
-  const headers = ["Codigo", "Medida", "Riesgo", "Responsable", "Vencimiento", "Estado"];
-  const columns = [42, 110, 420, 500, 620, 710];
-  const measureWidth = 295;
+  const headers = ["Cod. accion", "Medida", "Cod. riesgo", "Descripcion riesgo", "Responsable", "Vencimiento", "Estado"];
+  const columns = [42, 115, 340, 425, 610, 700, 765];
+  const widths = [60, 210, 70, 175, 80, 55, 35];
 
-  headers.forEach((header, index) => {
-    page.drawText(header, { x: columns[index], y: 466, size: 10, font: bold, color: rgb(0.38, 0.45, 0.54) });
-  });
+  drawHeader(page, headers, columns, bold);
 
   cursorY = 442;
   for (const action of actions) {
-    const wrappedTask = wrapText(action.task, font, 10, measureWidth);
-    const rowHeight = Math.max(26, wrappedTask.length * 12 + 10);
+    const wrappedId = wrapText(action.id, bold, 10, widths[0]);
+    const wrappedTask = wrapText(action.task, font, 10, widths[1]);
+    const wrappedRiskCode = wrapText(action.risk || "-", font, 10, widths[2]);
+    const wrappedRiskDescription = wrapText(action.riskDescription || "-", font, 10, widths[3]);
+    const wrappedOwner = wrapText(action.owner, font, 10, widths[4]);
+    const wrappedDue = wrapText(action.due, font, 10, widths[5]);
+    const wrappedStatus = wrapText(action.status, font, 10, widths[6]);
+    const rowHeight = Math.max(
+      28,
+      Math.max(
+        wrappedId.length,
+        wrappedTask.length,
+        wrappedRiskCode.length,
+        wrappedRiskDescription.length,
+        wrappedOwner.length,
+        wrappedDue.length,
+        wrappedStatus.length
+      ) * 12 + 10
+    );
 
     if (cursorY - rowHeight < 70) {
       const nextPage = pdf.addPage([842, 595]);
-      headers.forEach((header, index) => {
-        nextPage.drawText(header, { x: columns[index], y: 540, size: 10, font: bold, color: rgb(0.38, 0.45, 0.54) });
-      });
-      nextPage.drawLine({ start: { x: 42, y: 528 }, end: { x: 800, y: 528 }, thickness: 1, color: rgb(0.84, 0.89, 0.93) });
+      drawHeader(nextPage, headers, columns, bold, 540, 528);
       page = nextPage;
       cursorY = 504;
     }
 
-    drawActionRow(page, action, columns, cursorY, font, bold, wrappedTask, rowHeight);
+    drawActionRow(page, action, columns, cursorY, font, bold, {
+      id: wrappedId,
+      task: wrappedTask,
+      risk: wrappedRiskCode,
+      riskDescription: wrappedRiskDescription,
+      owner: wrappedOwner,
+      due: wrappedDue,
+      status: wrappedStatus
+    }, rowHeight);
     cursorY -= rowHeight;
   }
 
@@ -71,6 +91,7 @@ async function getReportActions(filters: { owner: string; status: string; area: 
       ca.id,
       ca.task,
       ca.risk_id as risk,
+      coalesce(r.risk, '') as "riskDescription",
       ca.owner,
       to_char(ca.due_date, 'DD/MM/YYYY') as due,
       ca.status,
@@ -83,7 +104,7 @@ async function getReportActions(filters: { owner: string; status: string; area: 
     order by ca.due_date asc
   `;
 
-  return rows as Array<{ id: string; task: string; risk: string; owner: string; due: string; status: string; area: string }>;
+  return rows as Array<{ id: string; task: string; risk: string; riskDescription: string; owner: string; due: string; status: string; area: string }>;
 }
 
 function getMockActions(filters: { owner: string; status: string; area: string }) {
@@ -92,33 +113,60 @@ function getMockActions(filters: { owner: string; status: string; area: string }
     if (filters.status && action.status !== filters.status) return false;
     if (filters.area && !action.risk.toUpperCase().startsWith(filters.area.toUpperCase())) return false;
     return true;
-  });
+  }).map((action) => ({
+    ...action,
+    riskDescription: mockRisks.find((risk) => risk.id === action.risk)?.risk ?? ""
+  }));
 }
 
 function drawActionRow(
   page: PDFPage,
-  action: { id: string; task: string; risk: string; owner: string; due: string; status: string },
+  action: { id: string; task: string; risk: string; riskDescription: string; owner: string; due: string; status: string },
   columns: number[],
   y: number,
   font: PDFFont,
   bold: PDFFont,
-  wrappedTask: string[],
+  wrapped: {
+    id: string[];
+    task: string[];
+    risk: string[];
+    riskDescription: string[];
+    owner: string[];
+    due: string[];
+    status: string[];
+  },
   rowHeight: number
 ) {
   const baseY = y;
-  page.drawText(action.id, { x: columns[0], y, size: 10, font: bold, color: rgb(0.06, 0.13, 0.2) });
-  wrappedTask.forEach((line, index) => {
+  wrapped.id.forEach((line, index) => {
+    page.drawText(line, { x: columns[0], y: baseY - index * 12, size: 10, font: bold, color: rgb(0.06, 0.13, 0.2) });
+  });
+  wrapped.task.forEach((line, index) => {
     page.drawText(line, { x: columns[1], y: baseY - index * 12, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
   });
-  page.drawText(action.risk || "-", { x: columns[2], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(trimText(action.owner, 16), { x: columns[3], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(action.due, { x: columns[4], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(action.status, { x: columns[5], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  wrapped.risk.forEach((line, index) => {
+    page.drawText(line, { x: columns[2], y: baseY - index * 12, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  });
+  wrapped.riskDescription.forEach((line, index) => {
+    page.drawText(line, { x: columns[3], y: baseY - index * 12, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  });
+  wrapped.owner.forEach((line, index) => {
+    page.drawText(line, { x: columns[4], y: baseY - index * 12, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  });
+  wrapped.due.forEach((line, index) => {
+    page.drawText(line, { x: columns[5], y: baseY - index * 12, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  });
+  wrapped.status.forEach((line, index) => {
+    page.drawText(line, { x: columns[6], y: baseY - index * 12, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  });
   page.drawLine({ start: { x: 42, y: baseY - rowHeight + 10 }, end: { x: 800, y: baseY - rowHeight + 10 }, thickness: 0.8, color: rgb(0.9, 0.93, 0.96) });
 }
 
-function trimText(value: string, limit: number) {
-  return value.length > limit ? `${value.slice(0, limit - 1)}...` : value;
+function drawHeader(page: PDFPage, headers: string[], columns: number[], font: PDFFont, y = 466, lineY = 454) {
+  headers.forEach((header, index) => {
+    page.drawText(header, { x: columns[index], y, size: 10, font, color: rgb(0.38, 0.45, 0.54) });
+  });
+  page.drawLine({ start: { x: 42, y: lineY }, end: { x: 800, y: lineY }, thickness: 1, color: rgb(0.84, 0.89, 0.93) });
 }
 
 function wrapText(value: string, font: PDFFont, size: number, maxWidth: number) {
