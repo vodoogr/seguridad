@@ -4,7 +4,7 @@ import { StatusBadge } from "../components/Tables";
 import { closeCorrectiveAction, createCorrectiveAction, deleteCorrectiveAction } from "../actions";
 import { getActions, getRisks } from "../../lib/repository";
 import Link from "next/link";
-import { Check, Filter, Trash2 } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, Check, Filter, Trash2 } from "lucide-react";
 
 export default async function AccionesPage({
   searchParams
@@ -13,6 +13,8 @@ export default async function AccionesPage({
     owner?: string;
     status?: string;
     area?: string;
+    sort?: string;
+    dir?: string;
   };
 }) {
   const actions = await getActions();
@@ -20,6 +22,8 @@ export default async function AccionesPage({
   const selectedOwner = searchParams?.owner?.trim() ?? "";
   const selectedStatus = searchParams?.status?.trim() ?? "";
   const selectedArea = searchParams?.area?.trim() ?? "";
+  const sortField = searchParams?.sort?.trim() ?? "due";
+  const sortDir = searchParams?.dir?.trim() === "desc" ? "desc" : "asc";
   const owners = Array.from(new Set(actions.map((action) => action.owner))).sort((a, b) => a.localeCompare(b));
   const areaOptions = ["ALM", "EXP", "RECEP", "PERS", "SPV"];
   const riskAreaById = new Map(risks.map((risk) => [risk.id, risk.area]));
@@ -32,7 +36,7 @@ export default async function AccionesPage({
       if (!area.toUpperCase().startsWith(resolveAreaPrefix(selectedArea))) return false;
     }
     return true;
-  });
+  }).sort((left, right) => compareActions(left, right, sortField, sortDir));
 
   return (
     <AppShell>
@@ -91,6 +95,8 @@ export default async function AccionesPage({
               </option>
             ))}
           </select>
+          <input name="sort" type="hidden" value={sortField} />
+          <input name="dir" type="hidden" value={sortDir} />
           <button type="submit">Ver</button>
           <Link
             className="button-link secondary-link"
@@ -108,12 +114,12 @@ export default async function AccionesPage({
         </div>
         <div className="table">
           <div className="row actions-head head">
-            <span>Codigo</span>
-            <span>Medida</span>
-            <span>Riesgo</span>
-            <span>Responsable</span>
-            <span>Vencimiento</span>
-            <span>Estado</span>
+            <SortHeader currentDir={sortDir} currentField={sortField} field="id" label="Codigo" query={buildSortQuery({ owner: selectedOwner, status: selectedStatus, area: selectedArea }, sortField, sortDir, "id")} />
+            <SortHeader currentDir={sortDir} currentField={sortField} field="task" label="Medida" query={buildSortQuery({ owner: selectedOwner, status: selectedStatus, area: selectedArea }, sortField, sortDir, "task")} />
+            <SortHeader currentDir={sortDir} currentField={sortField} field="risk" label="Riesgo" query={buildSortQuery({ owner: selectedOwner, status: selectedStatus, area: selectedArea }, sortField, sortDir, "risk")} />
+            <SortHeader currentDir={sortDir} currentField={sortField} field="owner" label="Responsable" query={buildSortQuery({ owner: selectedOwner, status: selectedStatus, area: selectedArea }, sortField, sortDir, "owner")} />
+            <SortHeader currentDir={sortDir} currentField={sortField} field="due" label="Vencimiento" query={buildSortQuery({ owner: selectedOwner, status: selectedStatus, area: selectedArea }, sortField, sortDir, "due")} />
+            <SortHeader currentDir={sortDir} currentField={sortField} field="status" label="Estado" query={buildSortQuery({ owner: selectedOwner, status: selectedStatus, area: selectedArea }, sortField, sortDir, "status")} />
           </div>
           {filteredActions.map((action) => (
             <div className="row actions-head" key={action.id}>
@@ -153,4 +159,64 @@ function resolveAreaPrefix(value: string) {
   if (value === "PERS") return "PERSONAL";
   if (value === "SPV") return "POSTVENTA";
   return value;
+}
+
+function compareActions(
+  left: { id: string; task: string; risk: string; owner: string; due: string; status: string },
+  right: { id: string; task: string; risk: string; owner: string; due: string; status: string },
+  field: string,
+  dir: string
+) {
+  const direction = dir === "desc" ? -1 : 1;
+  const getValue = (item: typeof left) => {
+    if (field === "id") return item.id;
+    if (field === "task") return item.task;
+    if (field === "risk") return item.risk;
+    if (field === "owner") return item.owner;
+    if (field === "status") return item.status;
+    if (field === "due") return item.due.split("/").reverse().join("-");
+    return item.due.split("/").reverse().join("-");
+  };
+
+  return getValue(left).localeCompare(getValue(right)) * direction;
+}
+
+function buildSortQuery(
+  filters: { owner: string; status: string; area: string },
+  currentField: string,
+  currentDir: string,
+  nextField: string
+) {
+  const dir = currentField === nextField && currentDir === "asc" ? "desc" : "asc";
+  const params = new URLSearchParams();
+  if (filters.owner) params.set("owner", filters.owner);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.area) params.set("area", filters.area);
+  params.set("sort", nextField);
+  params.set("dir", dir);
+  return `/acciones?${params.toString()}`;
+}
+
+function SortHeader({
+  label,
+  field,
+  currentField,
+  currentDir,
+  query
+}: {
+  label: string;
+  field: string;
+  currentField: string;
+  currentDir: string;
+  query: string;
+}) {
+  const active = currentField === field;
+  const Icon = active && currentDir === "desc" ? ArrowDownAZ : ArrowUpAZ;
+
+  return (
+    <Link className={`sort-link${active ? " active" : ""}`} href={query}>
+      {label}
+      <Icon size={14} />
+    </Link>
+  );
 }
