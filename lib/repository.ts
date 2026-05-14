@@ -70,6 +70,13 @@ type CommitteeMemberRecord = {
   email?: string;
 };
 
+type CommitteeRecord = {
+  nextDate: string;
+  lastMinutesDate: string;
+  members: CommitteeMemberRecord[];
+  agenda: string[];
+};
+
 export async function getDashboardStats() {
   const riskRows = await getRisks();
   const actionRows = await getActions();
@@ -146,11 +153,17 @@ export async function getActions() {
   return rows as ActionRecord[];
 }
 
-export async function getCommittee() {
+export async function getCommittee(): Promise<CommitteeRecord> {
   if (!hasDatabase) {
     return {
-      ...committee,
-      members: committee.members.map((name, index) => ({ id: `seed-${index}`, name })),
+      nextDate: committee.nextDate,
+      members: committee.members.map((name, index) => ({
+        id: `seed-${index}`,
+        name,
+        role: "",
+        email: ""
+      })),
+      agenda: committee.agenda,
       lastMinutesDate: "Sin acta"
     };
   }
