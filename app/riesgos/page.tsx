@@ -3,11 +3,33 @@ import { PageHeader } from "../components/PageHeader";
 import { RiskLevel, StatusBadge } from "../components/Tables";
 import { controlRisk, createRisk, deleteRisk } from "../actions";
 import { getRisks } from "../../lib/repository";
-import { Check, ClipboardPlus, Trash2 } from "lucide-react";
+import { Check, ClipboardPlus, Filter, Trash2 } from "lucide-react";
 import Link from "next/link";
 
-export default async function RiesgosPage() {
+export default async function RiesgosPage({
+  searchParams
+}: {
+  searchParams?: {
+    area?: string;
+    level?: string;
+    owner?: string;
+  };
+}) {
   const risks = await getRisks();
+  const selectedArea = searchParams?.area?.trim() ?? "";
+  const selectedLevel = searchParams?.level?.trim() ?? "";
+  const selectedOwner = searchParams?.owner?.trim() ?? "";
+
+  const areas = [...new Set(risks.map((risk) => risk.area))].sort((a, b) => a.localeCompare(b));
+  const levels = [...new Set(risks.map((risk) => risk.level))];
+  const owners = [...new Set(risks.map((risk) => risk.owner))].sort((a, b) => a.localeCompare(b));
+
+  const filteredRisks = risks.filter((risk) => {
+    if (selectedArea && risk.area !== selectedArea) return false;
+    if (selectedLevel && risk.level !== selectedLevel) return false;
+    if (selectedOwner && risk.owner !== selectedOwner) return false;
+    return true;
+  });
 
   return (
     <AppShell>
@@ -30,11 +52,51 @@ export default async function RiesgosPage() {
           <option>Controlado</option>
         </select>
         <button type="submit">Guardar riesgo</button>
+        <span className="form-hint">EXP = EXPEDICION, RECEP = RECEPCION, ALM = ALMACEN, PERS = PERSONAL, SPV = POSTVENTA</span>
       </form>
+      <article className="panel filter-panel">
+        <div className="panel-title">
+          <h2>
+            <Filter size={18} />
+            Filtros
+          </h2>
+          <span>{filteredRisks.length} resultados</span>
+        </div>
+        <form className="filter-form" method="get">
+          <select defaultValue={selectedArea} name="area">
+            <option value="">Todas las areas</option>
+            {areas.map((area) => (
+              <option key={area} value={area}>
+                {area}
+              </option>
+            ))}
+          </select>
+          <select defaultValue={selectedLevel} name="level">
+            <option value="">Todos los niveles</option>
+            {levels.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+          <select defaultValue={selectedOwner} name="owner">
+            <option value="">Todos los responsables</option>
+            {owners.map((owner) => (
+              <option key={owner} value={owner}>
+                {owner}
+              </option>
+            ))}
+          </select>
+          <button type="submit">Filtrar</button>
+          <Link className="button-link secondary-link" href="/riesgos">
+            Limpiar
+          </Link>
+        </form>
+      </article>
       <article className="panel">
         <div className="panel-title">
           <h2>Inventario de riesgos</h2>
-          <span>{risks.length} registros</span>
+          <span>{filteredRisks.length} registros</span>
         </div>
         <div className="table">
           <div className="row risks-head head">
@@ -46,7 +108,7 @@ export default async function RiesgosPage() {
             <span>Responsable</span>
             <span>Acciones</span>
           </div>
-          {risks.map((risk) => (
+          {filteredRisks.map((risk) => (
             <div className="row risks-head" key={risk.id}>
               <span>{risk.id}</span>
               <span>{risk.area}</span>

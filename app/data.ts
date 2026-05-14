@@ -24,7 +24,6 @@ export const navItems = [
 export const metrics = [
   { label: "Riesgos abiertos", value: "18", detail: "5 criticos", icon: AlertTriangle },
   { label: "Acciones pendientes", value: "27", detail: "9 vencen esta semana", icon: ClipboardCheck },
-  { label: "Inspecciones", value: "12", detail: "3 programadas", icon: ShieldCheck },
   { label: "Comite PRL", value: "6", detail: "miembros activos", icon: Users }
 ];
 

@@ -212,6 +212,37 @@ textarea {
   justify-content: center;
 }
 
+.form-hint {
+  color: var(--muted);
+  font-size: 13px;
+  grid-column: 1 / -1;
+}
+
+.filter-panel {
+  margin-bottom: 20px;
+}
+
+.filter-form {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto auto;
+}
+
+.secondary-link {
+  background: #edf3fb;
+  color: var(--blue-dark);
+}
+
+.secondary-link:hover {
+  background: #dce9f8;
+  color: var(--blue-dark);
+}
+
+.report-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .inline-form {
   align-items: center;
   display: flex;
@@ -750,7 +781,8 @@ dd {
   }
 
   .edit-row,
-  .meeting-form {
+  .meeting-form,
+  .filter-form {
     grid-template-columns: 1fr;
   }
 

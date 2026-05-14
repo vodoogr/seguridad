@@ -24,6 +24,7 @@ export default function NuevoRiesgoPage() {
           <option>Controlado</option>
         </select>
         <button type="submit">Guardar riesgo</button>
+        <span className="form-hint">EXP = EXPEDICION, RECEP = RECEPCION, ALM = ALMACEN, PERS = PERSONAL, SPV = POSTVENTA</span>
       </form>
     </AppShell>
   );

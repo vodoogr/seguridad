@@ -15,7 +15,7 @@ export default function LoginPage() {
           </div>
           <h1>Control operativo de prevencion para almacenes</h1>
           <p>
-            Riesgos, incidencias, inspecciones, acciones correctoras, documentacion y comite de seguridad en un unico panel.
+            Riesgos, incidencias, acciones correctoras, documentacion y comite de seguridad en un unico panel.
           </p>
         </div>
 

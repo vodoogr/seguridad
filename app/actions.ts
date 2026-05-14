@@ -6,6 +6,18 @@ import { redirect } from "next/navigation";
 import { getSql, hasDatabase } from "../lib/db";
 import { getAccessCode } from "../lib/settings";
 
+function resolveRiskArea(code: string, fallback: string) {
+  const prefix = code.trim().toUpperCase().split(/[-\s]/)[0] ?? "";
+
+  if (prefix.startsWith("EXP")) return "EXPEDICION";
+  if (prefix.startsWith("RECEP")) return "RECEPCION";
+  if (prefix.startsWith("ALM")) return "ALMACEN";
+  if (prefix.startsWith("PERS")) return "PERSONAL";
+  if (prefix.startsWith("SPV")) return "POSTVENTA";
+
+  return fallback;
+}
+
 export async function login(formData: FormData) {
   const accessCode = String(formData.get("access_code"));
   const validCode = await getAccessCode();
@@ -32,12 +44,14 @@ export async function logout() {
 export async function createRisk(formData: FormData) {
   if (!hasDatabase) redirect("/riesgos");
   const sql = getSql();
+  const id = String(formData.get("id"));
+  const area = resolveRiskArea(id, String(formData.get("area")));
 
   await sql`
     insert into risks (id, area, risk, level, owner, due_date, status)
     values (
-      ${String(formData.get("id"))},
-      ${String(formData.get("area"))},
+      ${id},
+      ${area},
       ${String(formData.get("risk"))},
       ${String(formData.get("level"))},
       ${String(formData.get("owner"))},
@@ -118,6 +132,18 @@ export async function closeCorrectiveAction(formData: FormData) {
   await sql`
     update corrective_actions
     set status = 'Cerrada'
+    where id = ${String(formData.get("id"))}
+  `;
+  revalidatePath("/acciones");
+  revalidatePath("/");
+}
+
+export async function deleteCorrectiveAction(formData: FormData) {
+  if (!hasDatabase) return;
+  const sql = getSql();
+
+  await sql`
+    delete from corrective_actions
     where id = ${String(formData.get("id"))}
   `;
   revalidatePath("/acciones");
