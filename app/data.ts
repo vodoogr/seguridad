@@ -8,7 +8,6 @@ import {
   ListChecks,
   LockKeyhole,
   ShieldAlert,
-  ShieldCheck,
   Users
 } from "lucide-react";
 
@@ -16,7 +15,6 @@ export const navItems = [
   { label: "Panel", href: "/", icon: Gauge },
   { label: "Incidencias", href: "/incidencias", icon: ShieldAlert },
   { label: "Riesgos", href: "/riesgos", icon: AlertTriangle },
-  { label: "Inspecciones", href: "/inspecciones", icon: ShieldCheck },
   { label: "Acciones", href: "/acciones", icon: ListChecks },
   { label: "Comite", href: "/comite", icon: Users },
   { label: "Documentacion", href: "/documentacion", icon: FileWarning },

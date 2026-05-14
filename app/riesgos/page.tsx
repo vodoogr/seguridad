@@ -3,7 +3,7 @@ import { PageHeader } from "../components/PageHeader";
 import { RiskLevel, StatusBadge } from "../components/Tables";
 import { controlRisk, createRisk, deleteRisk } from "../actions";
 import { getRisks } from "../../lib/repository";
-import { Check, Trash2 } from "lucide-react";
+import { Check, ClipboardPlus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default async function RiesgosPage() {
@@ -56,6 +56,14 @@ export default async function RiesgosPage() {
               <span>{risk.owner}</span>
               <div className="inline-actions">
                 <span>{risk.due}</span>
+                <Link
+                  aria-label="Pasar a acciones"
+                  className="icon-button"
+                  href={`/acciones/nueva?risk_id=${encodeURIComponent(risk.id)}`}
+                  title="Crear accion vinculada"
+                >
+                  <ClipboardPlus size={16} />
+                </Link>
                 {risk.status !== "Controlado" ? (
                   <form action={controlRisk} className="inline-form">
                     <input name="id" type="hidden" value={risk.id} />
