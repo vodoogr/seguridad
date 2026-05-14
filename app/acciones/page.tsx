@@ -10,14 +10,29 @@ export default async function AccionesPage({
   searchParams
 }: {
   searchParams?: {
+    owner?: string;
     status?: string;
-    export?: string;
+    area?: string;
   };
 }) {
   const actions = await getActions();
   const risks = await getRisks();
+  const selectedOwner = searchParams?.owner?.trim() ?? "";
   const selectedStatus = searchParams?.status?.trim() ?? "";
-  const filteredActions = selectedStatus ? actions.filter((action) => action.status === selectedStatus) : actions;
+  const selectedArea = searchParams?.area?.trim() ?? "";
+  const owners = Array.from(new Set(actions.map((action) => action.owner))).sort((a, b) => a.localeCompare(b));
+  const areaOptions = ["ALM", "EXP", "RECEP", "PERS", "SPV"];
+  const riskAreaById = new Map(risks.map((risk) => [risk.id, risk.area]));
+
+  const filteredActions = actions.filter((action) => {
+    if (selectedOwner && action.owner !== selectedOwner) return false;
+    if (selectedStatus && action.status !== selectedStatus) return false;
+    if (selectedArea) {
+      const area = riskAreaById.get(action.risk) ?? "";
+      if (!area.toUpperCase().startsWith(resolveAreaPrefix(selectedArea))) return false;
+    }
+    return true;
+  });
 
   return (
     <AppShell>
@@ -53,6 +68,14 @@ export default async function AccionesPage({
           <span>{filteredActions.length} acciones</span>
         </div>
         <form className="filter-form" method="get">
+          <select defaultValue={selectedOwner} name="owner">
+            <option value="">Todos los responsables</option>
+            {owners.map((owner) => (
+              <option key={owner} value={owner}>
+                {owner}
+              </option>
+            ))}
+          </select>
           <select defaultValue={selectedStatus} name="status">
             <option value="">Todas</option>
             <option value="Pendiente">Pendiente</option>
@@ -60,10 +83,18 @@ export default async function AccionesPage({
             <option value="En curso">En curso</option>
             <option value="Planificada">Planificada</option>
           </select>
+          <select defaultValue={selectedArea} name="area">
+            <option value="">Todas las zonas</option>
+            {areaOptions.map((area) => (
+              <option key={area} value={area}>
+                {area}
+              </option>
+            ))}
+          </select>
           <button type="submit">Ver</button>
           <Link
             className="button-link secondary-link"
-            href={`/acciones/reporte${selectedStatus ? `?status=${encodeURIComponent(selectedStatus)}` : ""}`}
+            href={`/acciones/reporte?owner=${encodeURIComponent(selectedOwner)}&status=${encodeURIComponent(selectedStatus)}&area=${encodeURIComponent(selectedArea)}`}
           >
             Exportar PDF
           </Link>
@@ -113,4 +144,13 @@ export default async function AccionesPage({
       </article>
     </AppShell>
   );
+}
+
+function resolveAreaPrefix(value: string) {
+  if (value === "EXP") return "EXPEDICION";
+  if (value === "RECEP") return "RECEPCION";
+  if (value === "ALM") return "ALMACEN";
+  if (value === "PERS") return "PERSONAL";
+  if (value === "SPV") return "POSTVENTA";
+  return value;
 }

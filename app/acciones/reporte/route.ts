@@ -5,8 +5,10 @@ import { getCompanyLogo } from "../../../lib/settings";
 import { actions as mockActions } from "../../data";
 
 export async function GET(request: NextRequest) {
+  const owner = request.nextUrl.searchParams.get("owner") ?? "";
   const status = request.nextUrl.searchParams.get("status") ?? "";
-  const actions = hasDatabase ? await getReportActions(status) : getMockActions(status);
+  const area = request.nextUrl.searchParams.get("area") ?? "";
+  const actions = hasDatabase ? await getReportActions({ owner, status, area }) : getMockActions({ owner, status, area });
   const pdf = await PDFDocument.create();
   let page = pdf.addPage([842, 595]);
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -23,7 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   page.drawText("Plan de accion", { x: 170, y: 540, size: 22, font: bold, color: rgb(0.06, 0.19, 0.37) });
-  page.drawText(`Filtro: ${status || "Todas"}`, { x: 170, y: 516, size: 11, font, color: rgb(0.38, 0.45, 0.54) });
+  page.drawText(`Filtros: ${buildFilterLabel({ owner, status, area })}`, { x: 170, y: 516, size: 11, font, color: rgb(0.38, 0.45, 0.54) });
   page.drawLine({ start: { x: 42, y: 490 }, end: { x: 800, y: 490 }, thickness: 1, color: rgb(0.84, 0.89, 0.93) });
 
   const headers = ["Codigo", "Medida", "Riesgo", "Responsable", "Vencimiento", "Estado"];
@@ -57,31 +59,40 @@ export async function GET(request: NextRequest) {
   return new NextResponse(bytes, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="plan-accion${status ? `-${status.toLowerCase()}` : ""}.pdf"`
+      "Content-Disposition": `attachment; filename="plan-accion.pdf"`
     }
   });
 }
 
-async function getReportActions(status: string) {
+async function getReportActions(filters: { owner: string; status: string; area: string }) {
   const sql = getSql();
-  const rows = status
-    ? await sql`
-        select id, task, risk_id as risk, owner, to_char(due_date, 'DD/MM/YYYY') as due, status
-        from corrective_actions
-        where status = ${status}
-        order by due_date asc
-      `
-    : await sql`
-        select id, task, risk_id as risk, owner, to_char(due_date, 'DD/MM/YYYY') as due, status
-        from corrective_actions
-        order by due_date asc
-      `;
+  const rows = await sql`
+    select
+      ca.id,
+      ca.task,
+      ca.risk_id as risk,
+      ca.owner,
+      to_char(ca.due_date, 'DD/MM/YYYY') as due,
+      ca.status,
+      coalesce(r.area, '') as area
+    from corrective_actions ca
+    left join risks r on r.id = ca.risk_id
+    where (${filters.owner} = '' or ca.owner = ${filters.owner})
+      and (${filters.status} = '' or ca.status = ${filters.status})
+      and (${filters.area} = '' or upper(coalesce(r.area, '')) like ${resolveAreaPrefix(filters.area)} || '%')
+    order by ca.due_date asc
+  `;
 
-  return rows as Array<{ id: string; task: string; risk: string; owner: string; due: string; status: string }>;
+  return rows as Array<{ id: string; task: string; risk: string; owner: string; due: string; status: string; area: string }>;
 }
 
-function getMockActions(status: string) {
-  return status ? mockActions.filter((action) => action.status === status) : mockActions;
+function getMockActions(filters: { owner: string; status: string; area: string }) {
+  return mockActions.filter((action) => {
+    if (filters.owner && action.owner !== filters.owner) return false;
+    if (filters.status && action.status !== filters.status) return false;
+    if (filters.area && !action.risk.toUpperCase().startsWith(filters.area.toUpperCase())) return false;
+    return true;
+  });
 }
 
 function drawActionRow(
@@ -103,4 +114,21 @@ function drawActionRow(
 
 function trimText(value: string, limit: number) {
   return value.length > limit ? `${value.slice(0, limit - 1)}...` : value;
+}
+
+function resolveAreaPrefix(value: string) {
+  if (value === "EXP") return "EXPEDICION";
+  if (value === "RECEP") return "RECEPCION";
+  if (value === "ALM") return "ALMACEN";
+  if (value === "PERS") return "PERSONAL";
+  if (value === "SPV") return "POSTVENTA";
+  return value;
+}
+
+function buildFilterLabel(filters: { owner: string; status: string; area: string }) {
+  const parts = [];
+  if (filters.owner) parts.push(`Responsable ${filters.owner}`);
+  if (filters.status) parts.push(`Estado ${filters.status}`);
+  if (filters.area) parts.push(`Zona ${filters.area}`);
+  return parts.length ? parts.join(" | ") : "Todas";
 }
