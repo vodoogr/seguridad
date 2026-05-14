@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
 
   const headers = ["Codigo", "Medida", "Riesgo", "Responsable", "Vencimiento", "Estado"];
   const columns = [42, 110, 420, 500, 620, 710];
+  const measureWidth = 295;
 
   headers.forEach((header, index) => {
     page.drawText(header, { x: columns[index], y: 466, size: 10, font: bold, color: rgb(0.38, 0.45, 0.54) });
@@ -37,8 +38,10 @@ export async function GET(request: NextRequest) {
 
   cursorY = 442;
   for (const action of actions) {
-    if (cursorY < 70) {
-      cursorY = 540;
+    const wrappedTask = wrapText(action.task, font, 10, measureWidth);
+    const rowHeight = Math.max(26, wrappedTask.length * 12 + 10);
+
+    if (cursorY - rowHeight < 70) {
       const nextPage = pdf.addPage([842, 595]);
       headers.forEach((header, index) => {
         nextPage.drawText(header, { x: columns[index], y: 540, size: 10, font: bold, color: rgb(0.38, 0.45, 0.54) });
@@ -46,13 +49,10 @@ export async function GET(request: NextRequest) {
       nextPage.drawLine({ start: { x: 42, y: 528 }, end: { x: 800, y: 528 }, thickness: 1, color: rgb(0.84, 0.89, 0.93) });
       page = nextPage;
       cursorY = 504;
-      drawActionRow(page, action, columns, cursorY, font, bold);
-      cursorY -= 34;
-      continue;
     }
 
-    drawActionRow(page, action, columns, cursorY, font, bold);
-    cursorY -= 34;
+    drawActionRow(page, action, columns, cursorY, font, bold, wrappedTask, rowHeight);
+    cursorY -= rowHeight;
   }
 
   const bytes = await pdf.save();
@@ -101,19 +101,49 @@ function drawActionRow(
   columns: number[],
   y: number,
   font: PDFFont,
-  bold: PDFFont
+  bold: PDFFont,
+  wrappedTask: string[],
+  rowHeight: number
 ) {
+  const baseY = y;
   page.drawText(action.id, { x: columns[0], y, size: 10, font: bold, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(trimText(action.task, 44), { x: columns[1], y, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(action.risk || "-", { x: columns[2], y, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(trimText(action.owner, 16), { x: columns[3], y, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(action.due, { x: columns[4], y, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawText(action.status, { x: columns[5], y, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
-  page.drawLine({ start: { x: 42, y: y - 10 }, end: { x: 800, y: y - 10 }, thickness: 0.8, color: rgb(0.9, 0.93, 0.96) });
+  wrappedTask.forEach((line, index) => {
+    page.drawText(line, { x: columns[1], y: baseY - index * 12, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  });
+  page.drawText(action.risk || "-", { x: columns[2], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  page.drawText(trimText(action.owner, 16), { x: columns[3], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  page.drawText(action.due, { x: columns[4], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  page.drawText(action.status, { x: columns[5], y: baseY, size: 10, font, color: rgb(0.06, 0.13, 0.2) });
+  page.drawLine({ start: { x: 42, y: baseY - rowHeight + 10 }, end: { x: 800, y: baseY - rowHeight + 10 }, thickness: 0.8, color: rgb(0.9, 0.93, 0.96) });
 }
 
 function trimText(value: string, limit: number) {
   return value.length > limit ? `${value.slice(0, limit - 1)}...` : value;
+}
+
+function wrapText(value: string, font: PDFFont, size: number, maxWidth: number) {
+  const words = value.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    const candidate = currentLine ? `${currentLine} ${word}` : word;
+    if (font.widthOfTextAtSize(candidate, size) <= maxWidth) {
+      currentLine = candidate;
+      continue;
+    }
+
+    if (currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+      continue;
+    }
+
+    lines.push(word);
+  }
+
+  if (currentLine) lines.push(currentLine);
+  return lines.length ? lines : [value];
 }
 
 function resolveAreaPrefix(value: string) {
